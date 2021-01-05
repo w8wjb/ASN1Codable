@@ -1,0 +1,5 @@
+Examples DEFINITIONS ::= BEGIN
+    Question ::= SEQUENCE {
+        id        REAL
+    }
+END
