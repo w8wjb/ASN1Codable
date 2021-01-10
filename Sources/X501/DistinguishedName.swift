@@ -7,9 +7,9 @@
 
 import Foundation
 
-struct DistinguishedName : Encodable {
+struct DistinguishedName : Codable {
 
-    typealias rdnTuple = (ObjectIdentifier, String)
+    typealias rdnTuple = (OID, String)
     
     var names: [RelativeDistinguishedName]
 
@@ -21,6 +21,13 @@ struct DistinguishedName : Encodable {
         self.names = tuples.compactMap { RelativeDistinguishedName(type: $0, value: $1) }
     }
     
+    init(from decoder: Decoder) throws {
+        var container = try decoder.unkeyedContainer()
+        self.names = [RelativeDistinguishedName]()
+        while !container.isAtEnd {
+            self.names.append(try container.decode(RelativeDistinguishedName.self))
+        }
+    }
     
     func encode(to encoder: Encoder) throws {
         var container = encoder.unkeyedContainer()

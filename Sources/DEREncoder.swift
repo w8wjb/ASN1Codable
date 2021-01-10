@@ -130,18 +130,18 @@ fileprivate class _DEREncoder : Encoder {
     
     func container<Key>(keyedBy type: Key.Type) -> KeyedEncodingContainer<Key> where Key : CodingKey {
         let collection = tailCollection()
-        let container = DERCollectionContainer<Key>(referencing: self, codingPath: self.codingPath, parent: collection)
+        let container = DEREncodingContainer<Key>(referencing: self, codingPath: self.codingPath, parent: collection)
         return KeyedEncodingContainer(container)
     }
     
     func unkeyedContainer() -> UnkeyedEncodingContainer {
         let collection = tailCollection()
-        return DERCollectionContainer<_DERKey>(referencing: self, codingPath: self.codingPath, parent: collection)
+        return DEREncodingContainer<_DERKey>(referencing: self, codingPath: self.codingPath, parent: collection)
     }
     
     func singleValueContainer() -> SingleValueEncodingContainer {
         let collection = tailCollection(singleValue: true)
-        return DERCollectionContainer<_DERKey>(referencing: self, codingPath: self.codingPath, parent: collection)
+        return DEREncodingContainer<_DERKey>(referencing: self, codingPath: self.codingPath, parent: collection)
     }
     
     
@@ -157,7 +157,7 @@ fileprivate class _DEREncoder : Encoder {
     }
 }
 
-fileprivate class DERCollectionContainer<K : CodingKey> : _DERBoxingContainer, KeyedEncodingContainerProtocol {
+fileprivate class DEREncodingContainer<K : CodingKey> : _DERBoxingContainer, KeyedEncodingContainerProtocol {
     typealias Key = K
     
     
@@ -270,11 +270,7 @@ fileprivate class DERCollectionContainer<K : CodingKey> : _DERBoxingContainer, K
         if let collection = parent as? DERCollection, collection.writeKeys {
             addChild(element: try box(key.stringValue))
         }
-        
-        if let oid = key as? ObjectIdentifier {
-            addChild(element: box(oid))
-        }
-        
+
         addChild(element: try boxEncodable(value, forKey: key))
     }
     
@@ -284,7 +280,7 @@ fileprivate class DERCollectionContainer<K : CodingKey> : _DERBoxingContainer, K
 
         let childCollection = DERCollection(tag: tag())
         addChild(element: childCollection)
-        return KeyedEncodingContainer(DERCollectionContainer<NestedKey>(referencing: encoder, codingPath: self.codingPath, parent: childCollection))
+        return KeyedEncodingContainer(DEREncodingContainer<NestedKey>(referencing: encoder, codingPath: self.codingPath, parent: childCollection))
     }
     
     public func nestedUnkeyedContainer(forKey key: Key) -> UnkeyedEncodingContainer {
@@ -293,7 +289,7 @@ fileprivate class DERCollectionContainer<K : CodingKey> : _DERBoxingContainer, K
 
         let childCollection = DERCollection(tag: tag())
         addChild(element: childCollection)
-        return DERCollectionContainer(referencing: encoder, codingPath: self.codingPath, parent: childCollection)
+        return DEREncodingContainer(referencing: encoder, codingPath: self.codingPath, parent: childCollection)
     }
     
     public func superEncoder() -> Encoder {
@@ -308,7 +304,7 @@ fileprivate class DERCollectionContainer<K : CodingKey> : _DERBoxingContainer, K
 
 
 // MARK: - UnkeyedEncodingContainer
-extension DERCollectionContainer: UnkeyedEncodingContainer, SingleValueEncodingContainer {
+extension DEREncodingContainer: UnkeyedEncodingContainer, SingleValueEncodingContainer {
     
     /// The number of elements encoded into the container.
     public var count: Int {
@@ -459,7 +455,7 @@ extension DERCollectionContainer: UnkeyedEncodingContainer, SingleValueEncodingC
 
         let childCollection = DERCollection(tag: tag())
         addChild(element: childCollection)
-        return KeyedEncodingContainer(DERCollectionContainer<NestedKey>(referencing: encoder, codingPath: self.codingPath, parent: childCollection))
+        return KeyedEncodingContainer(DEREncodingContainer<NestedKey>(referencing: encoder, codingPath: self.codingPath, parent: childCollection))
     }
     
     public func nestedUnkeyedContainer() -> UnkeyedEncodingContainer {
@@ -469,7 +465,7 @@ extension DERCollectionContainer: UnkeyedEncodingContainer, SingleValueEncodingC
 
         let childCollection = DERCollection(tag: tag())
         addChild(element: childCollection)
-        return DERCollectionContainer(referencing: encoder, codingPath: self.codingPath, parent: childCollection)
+        return DEREncodingContainer(referencing: encoder, codingPath: self.codingPath, parent: childCollection)
     }
     
 }
@@ -487,29 +483,7 @@ fileprivate class _DERBoxingContainer {
         self.encoder = encoder
         self.codingPath = codingPath
     }
-        
-    struct RealOptions: OptionSet {
-        static let BINARY_ENCODING = RealOptions(rawValue:      0b10000000)
-        static let DECIMAL_ENCODING = RealOptions([])
-        static let SPECIAL_REAL_VALUE = RealOptions(rawValue:   0b01000000)
-        static let BASE_2 = RealOptions([])
-        static let BASE_8 = RealOptions(rawValue:               0b00010000)
-        static let BASE_16 = RealOptions(rawValue:              0b00100000)
-        
-        static let IS_NEGATIVE = RealOptions(rawValue:          0b01000000)
-        
-        static let PLUS_INFINITY = RealOptions([])
-        static let MINUS_INFINITY = RealOptions(rawValue:       0b00000001)
-        static let NOT_A_NUMBER = RealOptions(rawValue:         0b00000010)
-        static let MINUS_ZERO = RealOptions(rawValue:           0b00000011)
-        
-        static let EXPONENT_1BYTE = RealOptions([])
-        static let EXPONENT_2BYTES = RealOptions(rawValue:      0b00000001)
-        static let EXPONENT_3BYTES = RealOptions(rawValue:      0b00000010)
-        static let EXPONENT_XBYTES = RealOptions(rawValue:      0b00000011)
-        
-        let rawValue: UInt8
-    }
+
     
     func toSmallestByteArray<T: BinaryInteger>(endian: T, count: Int) -> [UInt8] {
         var _endian = endian
@@ -576,108 +550,72 @@ fileprivate class _DERBoxingContainer {
     
     func boxNil(forKey key: CodingKey? = nil) -> DERElement {
         let primitive = DERPrimitive(tag: .NULL, value: Data([]))
-        if let oid = key as? ObjectIdentifier {
-            return DERCollection(elements: box(oid), primitive)
-        }
         return primitive
     }
 
     func box(_ value: Bool, forKey key: CodingKey? = nil) -> DERElement {
         let byte: UInt8 = value ? 0xFF : 0x00
         let primitive = DERPrimitive(tag: tag(for: value), value: Data([byte]))
-        if let oid = key as? ObjectIdentifier {
-            return DERCollection(elements: box(oid), primitive)
-        }
         return primitive
     }
     
     func box(_ value: Int, forKey key: CodingKey? = nil) -> DERElement {
         let bytes = toSmallestByteArray(endian: value.bigEndian, count: MemoryLayout<Int>.size)
         let primitive = DERPrimitive(tag: tag(for: value), bytes: bytes)
-        if let oid = key as? ObjectIdentifier {
-            return DERCollection(elements: box(oid), primitive)
-        }
         return primitive
     }
     
     func box(_ value: Int8, forKey key: CodingKey? = nil) -> DERElement {
         let bytes = toSmallestByteArray(endian: value.bigEndian, count: MemoryLayout<Int8>.size)
         let primitive = DERPrimitive(tag: tag(for: value), bytes: bytes)
-        if let oid = key as? ObjectIdentifier {
-            return DERCollection(elements: box(oid), primitive)
-        }
         return primitive
     }
     
     func box(_ value: Int16, forKey key: CodingKey? = nil) -> DERElement {
         let bytes = toSmallestByteArray(endian: value.bigEndian, count: MemoryLayout<Int16>.size)
         let primitive = DERPrimitive(tag: tag(for: value), bytes: bytes)
-        if let oid = key as? ObjectIdentifier {
-            return DERCollection(elements: box(oid), primitive)
-        }
         return primitive
     }
     
     func box(_ value: Int32, forKey key: CodingKey? = nil) -> DERElement {
         let bytes = toSmallestByteArray(endian: value.bigEndian, count: MemoryLayout<Int32>.size)
         let primitive = DERPrimitive(tag: tag(for: value), bytes: bytes)
-        if let oid = key as? ObjectIdentifier {
-            return DERCollection(elements: box(oid), primitive)
-        }
         return primitive
     }
     
     func box(_ value: Int64, forKey key: CodingKey? = nil) -> DERElement {
         let bytes = toSmallestByteArray(endian: value.bigEndian, count: MemoryLayout<Int64>.size)
         let primitive = DERPrimitive(tag: tag(for: value), bytes: bytes)
-        if let oid = key as? ObjectIdentifier {
-            return DERCollection(elements: box(oid), primitive)
-        }
         return primitive
     }
     
     func box(_ value: UInt, forKey key: CodingKey? = nil) -> DERElement {
         let bytes = toSmallestByteArray(endian: value.bigEndian, count: MemoryLayout<UInt>.size)
         let primitive = DERPrimitive(tag: tag(for: value), bytes: bytes)
-        if let oid = key as? ObjectIdentifier {
-            return DERCollection(elements: box(oid), primitive)
-        }
         return primitive
     }
     
     func box(_ value: UInt8, forKey key: CodingKey? = nil) -> DERElement {
         let bytes = toSmallestByteArray(endian: value.bigEndian, count: MemoryLayout<UInt8>.size)
         let primitive = DERPrimitive(tag: tag(for: value), bytes: bytes)
-        if let oid = key as? ObjectIdentifier {
-            return DERCollection(elements: box(oid), primitive)
-        }
         return primitive
     }
     
     func box(_ value: UInt16, forKey key: CodingKey? = nil) -> DERElement {
         let bytes = toSmallestByteArray(endian: value.bigEndian, count: MemoryLayout<UInt16>.size)
         let primitive = DERPrimitive(tag: tag(for: value), bytes: bytes)
-        if let oid = key as? ObjectIdentifier {
-            return DERCollection(elements: box(oid), primitive)
-        }
         return primitive
     }
     
     func box(_ value: UInt32, forKey key: CodingKey? = nil) -> DERElement {
         let bytes = toSmallestByteArray(endian: value.bigEndian, count: MemoryLayout<UInt32>.size)
         let primitive = DERPrimitive(tag: tag(for: value), bytes: bytes)
-        if let oid = key as? ObjectIdentifier {
-            return DERCollection(elements: box(oid), primitive)
-        }
         return primitive
     }
     
     func box(_ value: UInt64, forKey key: CodingKey? = nil) -> DERElement {
         let bytes = toSmallestByteArray(endian: value.bigEndian, count: MemoryLayout<UInt64>.size)
         let primitive = DERPrimitive(tag: tag(for: value), bytes: bytes)
-        if let oid = key as? ObjectIdentifier {
-            return DERCollection(elements: box(oid), primitive)
-        }
         return primitive
     }
     
@@ -697,9 +635,6 @@ fileprivate class _DERBoxingContainer {
                                                                           debugDescription: "Could not encode type \(type(of: value))"))
         }
 
-        if let oid = key as? ObjectIdentifier {
-            return DERCollection(elements: box(oid), primitive)
-        }
         return primitive
     }
     
@@ -809,9 +744,6 @@ fileprivate class _DERBoxingContainer {
         }
         
         let primitive = DERPrimitive(tag: tag(for: value), value: data)
-        if let oid = key as? ObjectIdentifier {
-            return DERCollection(elements: box(oid), primitive)
-        }
         return primitive
     }
     
@@ -819,13 +751,10 @@ fileprivate class _DERBoxingContainer {
         var bitstring = Data([0x00])
         bitstring.append(value)
         let primitive = DERPrimitive(tag: tag(for: value), value: bitstring)
-        if let oid = key as? ObjectIdentifier {
-            return DERCollection(elements: box(oid), primitive)
-        }
         return primitive
     }
     
-    func box(_ value: ObjectIdentifier, forKey key: CodingKey? = nil) -> DERElement {
+    func box(_ value: OID, forKey key: CodingKey? = nil) -> DERElement {
 
         let identifiers = value.oid.split(separator: ".").compactMap { Int($0) }
         
@@ -844,12 +773,10 @@ fileprivate class _DERBoxingContainer {
     func box(_ value: Date, forKey key: CodingKey? = nil) -> DERElement {
 
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyMMddHHmmssZ"
+        dateFormatter.timeZone = TimeZone(identifier: "UTC")
+        dateFormatter.dateFormat = "yyMMddHHmmss'Z'"
         let formatted = dateFormatter.string(from: value)
         let primitive = DERPrimitive(tag: tag(for: value), value: formatted.data(using: .utf8)!)
-        if let oid = key as? ObjectIdentifier {
-            return DERCollection(elements: box(oid), primitive)
-        }
         return primitive
     }
 
@@ -858,8 +785,8 @@ fileprivate class _DERBoxingContainer {
         switch value {
         case is Data:
             return box(value as! Data)
-        case is ObjectIdentifier:
-            return box(value as! ObjectIdentifier)
+        case is OID:
+            return box(value as! OID)
         case is Date:
             return box(value as! Date)
         case is Bool:

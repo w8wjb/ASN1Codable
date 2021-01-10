@@ -16,7 +16,10 @@ class DERCollection: DERElement {
     var writeKeys = false
     
     var length: Int {
-        self.elements.reduce(0) { $0 + $1.length + $1.getLengthBytes().count }
+        self.elements.reduce(0) {
+            // tag + length + content
+            $0 + 1 + $1.getLengthBytes().count + $1.length
+        }
     }
 
     var value: Data {

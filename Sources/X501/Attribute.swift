@@ -7,23 +7,30 @@
 
 import Foundation
 
-struct Attribute<T: Hashable & Encodable> : Encodable {
-    var type: ObjectIdentifier
+struct Attribute<T: Hashable & Codable> : Codable {
+    var type: OID
     var values: Set<T>
     
-    init(type: ObjectIdentifier, value: T) {
+    init(type: OID, value: T) {
         self.type = type
         self.values = Set<T>([value])
     }
     
-    init(type: ObjectIdentifier, values: T...) {
+    init(type: OID, values: T...) {
         self.type = type
         self.values = Set<T>(values)
     }
     
+    init(from decoder: Decoder) throws {
+        var container = try decoder.unkeyedContainer()
+        self.type = try container.decode(OID.self)
+        self.values = try container.decode(Set<T>.self)
+    }
+    
     func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: ObjectIdentifier.self)
-        try container.encode(values, forKey: type)
+        var container = encoder.unkeyedContainer()
+        try container.encode(type)
+        try container.encode(values)
     }
     
 }

@@ -18,3 +18,19 @@ extension DataProtocol {
         }.joined(separator: separator)
     }
 }
+
+extension Data {
+    
+    init(hexEncoded: String) {
+
+        var start = hexEncoded.startIndex
+        let bytes: [UInt8] = stride(from: 0, to: hexEncoded.count, by: 2).compactMap { _ in
+            let end = hexEncoded.index(after: start)
+            defer { start = hexEncoded.index(after: end) }
+            return UInt8(hexEncoded[start...end], radix: 16)
+        }
+        
+        self.init(bytes)
+    }
+    
+}

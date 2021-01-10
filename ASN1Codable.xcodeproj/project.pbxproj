@@ -10,20 +10,26 @@
 		AD03F4E125A2AB2A00405E26 /* ASN1Codable.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD03F4D725A2AB2900405E26 /* ASN1Codable.framework */; };
 		AD03F4E825A2AB2A00405E26 /* ASN1Codable.h in Headers */ = {isa = PBXBuildFile; fileRef = AD03F4DA25A2AB2A00405E26 /* ASN1Codable.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		AD03F4F825A2AC9600405E26 /* DEREncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD03F4F725A2AC9600405E26 /* DEREncoder.swift */; };
-		AD03F4FD25A2AD7E00405E26 /* ObjectIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD03F4FC25A2AD7E00405E26 /* ObjectIdentifier.swift */; };
+		AD03F4FD25A2AD7E00405E26 /* OID.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD03F4FC25A2AD7E00405E26 /* OID.swift */; };
 		AD03F50125A341E300405E26 /* DERElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD03F50025A341E300405E26 /* DERElement.swift */; };
 		AD03F50525A344BD00405E26 /* DERPrimitive.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD03F50425A344BD00405E26 /* DERPrimitive.swift */; };
 		AD03F50925A3454000405E26 /* DERCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD03F50825A3454000405E26 /* DERCollection.swift */; };
 		AD03F50D25A3474800405E26 /* DERTagStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD03F50C25A3474800405E26 /* DERTagStrategy.swift */; };
 		AD03F51325A34FEF00405E26 /* DEREncoderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD03F51225A34FEF00405E26 /* DEREncoderTests.swift */; };
+		AD1229DE25A8BA25002331FC /* BufferCursor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD1229DD25A8BA25002331FC /* BufferCursor.swift */; };
 		AD6F98B225A35BAC00AD06F4 /* Data+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6F98B125A35BAC00AD06F4 /* Data+Extension.swift */; };
 		AD6F98B625A3731000AD06F4 /* CertificationRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6F98B525A3731000AD06F4 /* CertificationRequest.swift */; };
 		AD6F98BA25A374BA00AD06F4 /* DistinguishedName.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6F98B925A374BA00AD06F4 /* DistinguishedName.swift */; };
 		AD6F98BF25A37C3700AD06F4 /* Attribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6F98BE25A37C3700AD06F4 /* Attribute.swift */; };
 		AD6F98C325A37F4300AD06F4 /* RelativeDistinguishedName.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6F98C225A37F4300AD06F4 /* RelativeDistinguishedName.swift */; };
+		AD8E5F1A25A4F0F500E62FD6 /* test.expected.csr in Resources */ = {isa = PBXBuildFile; fileRef = AD8E5F1925A4F0F500E62FD6 /* test.expected.csr */; };
+		AD8E5F1D25A4F12000E62FD6 /* test.expected.csr in Resources */ = {isa = PBXBuildFile; fileRef = AD8E5F1925A4F0F500E62FD6 /* test.expected.csr */; };
+		AD8E5F2125A4F1CA00E62FD6 /* DERDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8E5F2025A4F1CA00E62FD6 /* DERDecoder.swift */; };
+		AD8E5F2525A509B100E62FD6 /* DERDecoderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8E5F2425A509B100E62FD6 /* DERDecoderTests.swift */; };
 		AD9E2B9825A383E3001B27DC /* CertificationRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD9E2B9725A383E3001B27DC /* CertificationRequestTests.swift */; };
 		AD9E2B9E25A38FEC001B27DC /* test.private.key in Resources */ = {isa = PBXBuildFile; fileRef = AD9E2B9D25A38FEC001B27DC /* test.private.key */; };
 		AD9E2BA125A39102001B27DC /* test.private.key in Resources */ = {isa = PBXBuildFile; fileRef = AD9E2B9D25A38FEC001B27DC /* test.private.key */; };
+		ADAFECEA25A49B4900CC5D6C /* PEMTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADAFECE925A49B4900CC5D6C /* PEMTools.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,19 +49,24 @@
 		AD03F4E025A2AB2A00405E26 /* ASN1CodableTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ASN1CodableTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD03F4E725A2AB2A00405E26 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AD03F4F725A2AC9600405E26 /* DEREncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DEREncoder.swift; sourceTree = "<group>"; };
-		AD03F4FC25A2AD7E00405E26 /* ObjectIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectIdentifier.swift; sourceTree = "<group>"; };
+		AD03F4FC25A2AD7E00405E26 /* OID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OID.swift; sourceTree = "<group>"; };
 		AD03F50025A341E300405E26 /* DERElement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DERElement.swift; sourceTree = "<group>"; };
 		AD03F50425A344BD00405E26 /* DERPrimitive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DERPrimitive.swift; sourceTree = "<group>"; };
 		AD03F50825A3454000405E26 /* DERCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DERCollection.swift; sourceTree = "<group>"; };
 		AD03F50C25A3474800405E26 /* DERTagStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DERTagStrategy.swift; sourceTree = "<group>"; };
 		AD03F51225A34FEF00405E26 /* DEREncoderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DEREncoderTests.swift; sourceTree = "<group>"; };
+		AD1229DD25A8BA25002331FC /* BufferCursor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BufferCursor.swift; sourceTree = "<group>"; };
 		AD6F98B125A35BAC00AD06F4 /* Data+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Extension.swift"; sourceTree = "<group>"; };
 		AD6F98B525A3731000AD06F4 /* CertificationRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificationRequest.swift; sourceTree = "<group>"; };
 		AD6F98B925A374BA00AD06F4 /* DistinguishedName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistinguishedName.swift; sourceTree = "<group>"; };
 		AD6F98BE25A37C3700AD06F4 /* Attribute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Attribute.swift; sourceTree = "<group>"; };
 		AD6F98C225A37F4300AD06F4 /* RelativeDistinguishedName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelativeDistinguishedName.swift; sourceTree = "<group>"; };
+		AD8E5F1925A4F0F500E62FD6 /* test.expected.csr */ = {isa = PBXFileReference; lastKnownFileType = text; name = test.expected.csr; path = Tests/X509/test.expected.csr; sourceTree = SOURCE_ROOT; };
+		AD8E5F2025A4F1CA00E62FD6 /* DERDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DERDecoder.swift; sourceTree = "<group>"; };
+		AD8E5F2425A509B100E62FD6 /* DERDecoderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DERDecoderTests.swift; sourceTree = "<group>"; };
 		AD9E2B9725A383E3001B27DC /* CertificationRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificationRequestTests.swift; sourceTree = "<group>"; };
 		AD9E2B9D25A38FEC001B27DC /* test.private.key */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; path = test.private.key; sourceTree = "<group>"; };
+		ADAFECE925A49B4900CC5D6C /* PEMTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PEMTools.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,13 +110,15 @@
 			isa = PBXGroup;
 			children = (
 				AD03F4DA25A2AB2A00405E26 /* ASN1Codable.h */,
+				AD1229DD25A8BA25002331FC /* BufferCursor.swift */,
 				AD03F50825A3454000405E26 /* DERCollection.swift */,
+				AD8E5F2025A4F1CA00E62FD6 /* DERDecoder.swift */,
 				AD03F50025A341E300405E26 /* DERElement.swift */,
 				AD03F4F725A2AC9600405E26 /* DEREncoder.swift */,
 				AD03F50425A344BD00405E26 /* DERPrimitive.swift */,
 				AD03F50C25A3474800405E26 /* DERTagStrategy.swift */,
 				AD03F4DB25A2AB2A00405E26 /* Info.plist */,
-				AD03F4FC25A2AD7E00405E26 /* ObjectIdentifier.swift */,
+				AD03F4FC25A2AD7E00405E26 /* OID.swift */,
 				AD6F98BD25A37A3900AD06F4 /* X501 */,
 				AD03F4FB25A2AD6400405E26 /* X509 */,
 			);
@@ -115,11 +128,11 @@
 		AD03F4E425A2AB2A00405E26 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				AD9E2B9D25A38FEC001B27DC /* test.private.key */,
 				AD9E2B9625A383BF001B27DC /* X509 */,
 				AD03F4E725A2AB2A00405E26 /* Info.plist */,
 				AD03F51225A34FEF00405E26 /* DEREncoderTests.swift */,
 				AD6F98B125A35BAC00AD06F4 /* Data+Extension.swift */,
+				AD8E5F2425A509B100E62FD6 /* DERDecoderTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -128,6 +141,7 @@
 			isa = PBXGroup;
 			children = (
 				AD6F98B525A3731000AD06F4 /* CertificationRequest.swift */,
+				ADAFECE925A49B4900CC5D6C /* PEMTools.swift */,
 			);
 			path = X509;
 			sourceTree = "<group>";
@@ -145,6 +159,8 @@
 		AD9E2B9625A383BF001B27DC /* X509 */ = {
 			isa = PBXGroup;
 			children = (
+				AD8E5F1925A4F0F500E62FD6 /* test.expected.csr */,
+				AD9E2B9D25A38FEC001B27DC /* test.private.key */,
 				AD9E2B9725A383E3001B27DC /* CertificationRequestTests.swift */,
 			);
 			path = X509;
@@ -243,6 +259,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AD9E2B9E25A38FEC001B27DC /* test.private.key in Resources */,
+				AD8E5F1A25A4F0F500E62FD6 /* test.expected.csr in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -251,6 +268,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AD9E2BA125A39102001B27DC /* test.private.key in Resources */,
+				AD8E5F1D25A4F12000E62FD6 /* test.expected.csr in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -263,15 +281,18 @@
 			files = (
 				AD6F98BF25A37C3700AD06F4 /* Attribute.swift in Sources */,
 				AD03F50925A3454000405E26 /* DERCollection.swift in Sources */,
+				AD8E5F2125A4F1CA00E62FD6 /* DERDecoder.swift in Sources */,
 				AD6F98C325A37F4300AD06F4 /* RelativeDistinguishedName.swift in Sources */,
 				AD6F98B225A35BAC00AD06F4 /* Data+Extension.swift in Sources */,
+				AD1229DE25A8BA25002331FC /* BufferCursor.swift in Sources */,
+				ADAFECEA25A49B4900CC5D6C /* PEMTools.swift in Sources */,
 				AD6F98BA25A374BA00AD06F4 /* DistinguishedName.swift in Sources */,
 				AD6F98B625A3731000AD06F4 /* CertificationRequest.swift in Sources */,
 				AD03F50D25A3474800405E26 /* DERTagStrategy.swift in Sources */,
 				AD03F50125A341E300405E26 /* DERElement.swift in Sources */,
 				AD03F50525A344BD00405E26 /* DERPrimitive.swift in Sources */,
 				AD03F4F825A2AC9600405E26 /* DEREncoder.swift in Sources */,
-				AD03F4FD25A2AD7E00405E26 /* ObjectIdentifier.swift in Sources */,
+				AD03F4FD25A2AD7E00405E26 /* OID.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -281,6 +302,7 @@
 			files = (
 				AD9E2B9825A383E3001B27DC /* CertificationRequestTests.swift in Sources */,
 				AD03F51325A34FEF00405E26 /* DEREncoderTests.swift in Sources */,
+				AD8E5F2525A509B100E62FD6 /* DERDecoderTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

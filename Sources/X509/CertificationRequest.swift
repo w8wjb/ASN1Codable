@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct CertificationRequest : Encodable {
+struct CertificationRequest : Codable {
     
     let certificationRequestInfo: CertificationRequestInfo
     var signatureAlgorithm: SecKeyAlgorithm?
@@ -17,6 +17,46 @@ struct CertificationRequest : Encodable {
         self.certificationRequestInfo = info
     }
     
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        certificationRequestInfo = try container.decode(CertificationRequestInfo.self, forKey: .certificationRequestInfo)
+        
+        var algorithmContainer = try container.nestedUnkeyedContainer(forKey: .signatureAlgorithm)
+        if let signatureAlgorithmOID = try algorithmContainer.decodeIfPresent(OID.self) {
+            
+            let _ = try algorithmContainer.decodeNil()
+            
+            let signatureAlgorithm: SecKeyAlgorithm
+            
+            switch signatureAlgorithmOID {
+            case .sha1WithRSAEncryption:
+                signatureAlgorithm = .rsaSignatureMessagePKCS1v15SHA1
+            case .sha224WithRSAEncryption:
+                signatureAlgorithm = .rsaSignatureMessagePKCS1v15SHA224
+            case .sha256WithRSAEncryption:
+                signatureAlgorithm = .rsaSignatureMessagePKCS1v15SHA256
+            case .sha384WithRSAEncryption:
+                signatureAlgorithm = .rsaSignatureMessagePKCS1v15SHA384
+            case .sha512WithRSAEncryption:
+                signatureAlgorithm = .rsaSignatureMessagePKCS1v15SHA512
+            case .ecdsa_with_SHA1:
+                signatureAlgorithm = .ecdsaSignatureMessageX962SHA1
+            case .ecdsa_with_SHA224:
+                signatureAlgorithm = .ecdsaSignatureMessageX962SHA224
+            case .ecdsa_with_SHA256:
+                signatureAlgorithm = .ecdsaSignatureMessageX962SHA256
+            case .ecdsa_with_SHA384:
+                signatureAlgorithm = .ecdsaSignatureMessageX962SHA384
+            case .ecdsa_with_SHA512:
+                signatureAlgorithm = .ecdsaSignatureMessageX962SHA512
+            default:
+                throw DecodingError.typeMismatch(OID.self, DecodingError.Context(codingPath: algorithmContainer.codingPath, debugDescription: "Unsupported encryption type: \(signatureAlgorithmOID)"))
+            }
+            self.signatureAlgorithm = signatureAlgorithm
+            
+            self.signature = try container.decode(Data.self, forKey: .signature)
+        }
+    }
     
     mutating func sign(privateKey: SecKey, algorithm: SecKeyAlgorithm) throws {
         
@@ -40,6 +80,32 @@ struct CertificationRequest : Encodable {
         
     }
     
+    func verify() throws -> Bool {
+        
+        guard let signatureAlgorithm = self.signatureAlgorithm else {
+            throw NSError(domain: "Security", code: Int(errSecInvalidAlgorithm), userInfo: nil)
+        }
+        
+        guard let signatureData = self.signature else {
+            throw NSError(domain: "Security", code: Int(errSecInvalidSignature), userInfo: nil)
+        }
+        
+        let encoder = DEREncoder()
+        encoder.tagStrategy = CertificationRequest.TagStrategy()
+        
+        let criData = try encoder.encode(certificationRequestInfo)
+        
+        let publicKey = certificationRequestInfo.publicKey
+        
+        var error: Unmanaged<CFError>?
+        let result = SecKeyVerifySignature(publicKey, signatureAlgorithm, criData as CFData, signatureData as CFData, &error)
+        if let error = error {
+            throw error.takeRetainedValue()
+        }
+
+        return result
+    }
+    
     enum CodingKeys: String, CodingKey {
         case certificationRequestInfo = "certificationRequestInfo"
         case signatureAlgorithm = "signatureAlgorithm"
@@ -57,25 +123,25 @@ struct CertificationRequest : Encodable {
             
             switch signatureAlgorithm {
             case .rsaSignatureMessagePKCS1v15SHA1:
-                try algorithmContainer.encode(ObjectIdentifier.sha1WithRSAEncryption)
+                try algorithmContainer.encode(OID.sha1WithRSAEncryption)
             case .rsaSignatureMessagePKCS1v15SHA224:
-                try algorithmContainer.encode(ObjectIdentifier.sha224WithRSAEncryption)
+                try algorithmContainer.encode(OID.sha224WithRSAEncryption)
             case .rsaSignatureMessagePKCS1v15SHA256:
-                try algorithmContainer.encode(ObjectIdentifier.sha256WithRSAEncryption)
+                try algorithmContainer.encode(OID.sha256WithRSAEncryption)
             case .rsaSignatureMessagePKCS1v15SHA384:
-                try algorithmContainer.encode(ObjectIdentifier.sha384WithRSAEncryption)
+                try algorithmContainer.encode(OID.sha384WithRSAEncryption)
             case .rsaSignatureMessagePKCS1v15SHA512:
-                try algorithmContainer.encode(ObjectIdentifier.sha512WithRSAEncryption)
+                try algorithmContainer.encode(OID.sha512WithRSAEncryption)
             case .ecdsaSignatureMessageX962SHA1:
-                try algorithmContainer.encode(ObjectIdentifier.ecdsa_with_SHA1)
+                try algorithmContainer.encode(OID.ecdsa_with_SHA1)
             case .ecdsaSignatureMessageX962SHA224:
-                try algorithmContainer.encode(ObjectIdentifier.ecdsa_with_SHA224)
+                try algorithmContainer.encode(OID.ecdsa_with_SHA224)
             case .ecdsaSignatureMessageX962SHA256:
-                try algorithmContainer.encode(ObjectIdentifier.ecdsa_with_SHA256)
+                try algorithmContainer.encode(OID.ecdsa_with_SHA256)
             case .ecdsaSignatureMessageX962SHA384:
-                try algorithmContainer.encode(ObjectIdentifier.ecdsa_with_SHA384)
+                try algorithmContainer.encode(OID.ecdsa_with_SHA384)
             case .ecdsaSignatureMessageX962SHA512:
-                try algorithmContainer.encode(ObjectIdentifier.ecdsa_with_SHA512)
+                try algorithmContainer.encode(OID.ecdsa_with_SHA512)
             default:
                 throw EncodingError.invalidValue(signatureAlgorithm,
                                                  EncodingError.Context(codingPath: [], debugDescription: "Unsupported signing algorithm"))
@@ -94,7 +160,7 @@ struct CertificationRequest : Encodable {
 }
 
 
-struct CertificationRequestInfo : Encodable {
+struct CertificationRequestInfo : Codable {
     
     enum Version: Int {
         case v1 = 0
@@ -109,7 +175,7 @@ struct CertificationRequestInfo : Encodable {
         self.subject = subject
         self.publicKey = publicKey
     }
-    
+
     enum CodingKeys: String, CodingKey {
         case version = "version"
         case subject = "subject"
@@ -119,7 +185,58 @@ struct CertificationRequestInfo : Encodable {
         case subjectPublicKey = "subjectPublicKey"
     }
     
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let versionRaw = try container.decode(Int.self, forKey: .version)
+        self.version = Version(rawValue: versionRaw) ?? .v1
+        self.subject = try container.decode(DistinguishedName.self, forKey: .subject)
+        
+        let subjectPKInfoContainer = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .subjectPKInfo)
+        
+        var algorithmContainer = try subjectPKInfoContainer.nestedUnkeyedContainer(forKey: .algorithm)
+        let algorithmOID = try algorithmContainer.decode(OID.self)
+        let _ = try algorithmContainer.decodeNil()
+        let keyData = try subjectPKInfoContainer.decode(Data.self, forKey: .subjectPublicKey)
+        
+        var attributes: [CFString : Any] = [
+            kSecAttrKeyClass: kSecAttrKeyClassPublic
+        ]
+
+        switch algorithmOID {
+        case .rsaEncryption:
+            attributes[kSecAttrKeyType] = kSecAttrKeyTypeRSA
+        case .id_ecPublicKey:
+            attributes[kSecAttrKeyType] = kSecAttrKeyTypeECSECPrimeRandom
+        default:
+            throw DecodingError.typeMismatch(OID.self, DecodingError.Context(codingPath: subjectPKInfoContainer.codingPath, debugDescription: "Unsupported encryption type: \(algorithmOID)"))
+        }
+        
+        
+        var error: Unmanaged<CFError>?
+        guard let publicKey = SecKeyCreateWithData(keyData as CFData, attributes as CFDictionary, &error) else {
+            throw DecodingError.dataCorruptedError(forKey: CodingKeys.subjectPublicKey, in: subjectPKInfoContainer, debugDescription: "Could not read public key")
+        }
+        if let error = error {
+            throw error.takeRetainedValue()
+        }
+        self.publicKey = publicKey
+        
+        self.attributes = try container.decode([Attribute<String>].self, forKey: .attributes)
+        
+    }
+    
     class TagStrategy : DefaultDERTagStrategy {
+        
+        override func tag(forType type: Decodable.Type, atPath codingPath: [CodingKey]) -> DERTagOptions {
+            if let lastKey = codingPath.last as? CodingKeys {
+                if lastKey == .attributes {
+                    // attributes    [0] Attributes{{ CRIAttributes }}
+                    return DERTagOptions.contextSpecific(0)
+                }
+            }
+
+            return super.tag(forType: type, atPath: codingPath)
+        }
         
         override func tag(forValue value: Encodable, atPath codingPath: [CodingKey]) -> DERTagOptions {
             
@@ -149,9 +266,9 @@ struct CertificationRequestInfo : Encodable {
         
         switch keyType {
         case kSecAttrKeyTypeRSA:
-            try algorithmContainer.encode(ObjectIdentifier.rsaEncryption)
+            try algorithmContainer.encode(OID.rsaEncryption)
         case kSecAttrKeyTypeECSECPrimeRandom, kSecAttrKeyTypeEC:
-            try algorithmContainer.encode(ObjectIdentifier.id_ecPublicKey)
+            try algorithmContainer.encode(OID.id_ecPublicKey)
         default:
             throw EncodingError.invalidValue(keyType,
                                              EncodingError.Context(codingPath: [], debugDescription: "Unsupported key algorithm"))

@@ -22,14 +22,7 @@ extension DERElement {
     }
     
     func getLengthBytes() -> [UInt8] {
-                
-        // 8.1.3.6 For the indefinite form, the length octets indicate that the contents octets are terminated by
-        // end-of- contents octets (see 8.1.5), and shall consist of a single octet.
-        // 8.1.3.6.1 The single octet shall have bit 8 set to one, and bits 7 to 1 set to zero.
-        if isConstructed {
-            return [0b10000000]
-        }
-        
+                        
         var length = self.length
         if length > 127 {
 
@@ -50,15 +43,11 @@ extension DERElement {
         data.append(tag)
         data.append(contentsOf: getLengthBytes())
         data.append(value)
-        if isConstructed {
-            // Append end-of-contents octets
-            data.append(contentsOf: [0, 0])
-        }
         return data
     }
 }
 
-struct DERTagOptions: OptionSet {
+struct DERTagOptions: OptionSet, CustomStringConvertible {
     var rawValue: UInt8
     
     static let Universal = DERTagOptions([])
@@ -87,6 +76,64 @@ struct DERTagOptions: OptionSet {
     static let UTCTime = DERTagOptions(rawValue: 23)
     static let GeneralizedTime = DERTagOptions(rawValue: 24)
     
+    var isConstructed: Bool {
+        return self.contains(.constructed)
+    }
+    
+    var description: String {
+        switch self {
+        case .BOOLEAN:
+            return "BOOLEAN"
+        case .INTEGER:
+            return "INTEGER"
+        case .BIT_STRING:
+            return "BIT STRING"
+        case .OCTET_STRING:
+            return "OCTET STRING"
+        case .NULL:
+            return "NULL"
+        case .OBJECT_IDENTIFIER:
+            return "OBJECT IDENTIFIER"
+        case .OBJECT_DESCRIPTOR:
+            return "OBJECT DESCRIPTOR"
+        case .REAL:
+            return "REAL"
+        case .ENUMERATED:
+            return "ENUMERATED"
+        case .UTF8String:
+            return "UTF8String"
+        case .RELATIVE_OID:
+            return "RELATIVE OID"
+        case .SEQUENCE:
+            return "SEQUENCE"
+        case .SET:
+            return "SEQUENCE"
+        case .PrintableString:
+            return "PrintableString"
+        case .IA5String:
+            return "IA5String"
+        case .UTCTime:
+            return "UTCTime"
+        case .GeneralizedTime:
+            return "GeneralizedTime"
+        default:
+            var desc = ""
+            if self.contains(.Private) {
+                desc += "Private "
+            } else if self.contains(.Application) {
+                desc += "Application "
+            } else if self.contains(.ContextSpecific) {
+                desc += "Context Specific "
+            }
+            
+            if self.contains(.constructed) {
+                desc += "constructed "
+            }
+            
+            desc += "tag \(self.rawValue)"
+            return desc
+        }
+    }
     
     static func contextSpecific(_ rawValue: UInt8, constructed: Bool = true) -> DERTagOptions {
         var tag = DERTagOptions(rawValue: rawValue)
@@ -96,5 +143,6 @@ struct DERTagOptions: OptionSet {
         }
         return tag
     }
+    
 
 }

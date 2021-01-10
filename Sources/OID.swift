@@ -1,5 +1,5 @@
 //
-//  ObjectIdentifier.swift
+//  OID.swift
 //  ASN1Codable
 //
 //  Created by Weston Bustraan on 12/25/20.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct OID : Codable, CodingKey, CustomStringConvertible, Equatable, Hashable {
+struct OID : Codable, CustomStringConvertible, Equatable, Hashable {
     static var knownOIDs = [String:OID]()
     
     static func == (lhs: OID, rhs: OID) -> Bool {
