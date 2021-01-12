@@ -25,13 +25,8 @@ class DEREncoder : TopLevelEncoder {
     func encode<T>(_ value: T) throws -> Data where T : Encodable {
         let encoder = _DEREncoder(userInfo: userInfo, tagStrategy: tagStrategy)
 
-        if value is _DERStringDictionaryEncodableMarker {
-            var container = encoder.singleValueContainer()
-            try container.encode(value)
-            
-        } else {
-            try value.encode(to: encoder)
-        }
+        var container = encoder.singleValueContainer()
+        try container.encode(value)
         
         guard let topLevel = encoder.topLevel else {
             throw EncodingError.invalidValue(value,
@@ -100,7 +95,7 @@ fileprivate class _DEREncoder : Encoder {
     
     var stack: [DERCollection] = []
     
-    let tagStrategy : DERTagStrategy
+    var tagStrategy : DERTagStrategy
 
     init(userInfo: [CodingUserInfoKey : Any], codingPath: [CodingKey] = [], tagStrategy: DERTagStrategy) {
         self.userInfo = userInfo
@@ -824,6 +819,15 @@ fileprivate class _DERBoxingContainer {
             let stackDepth = encoder.stack.count
             var wrapper: DERElement? = nil
             do {
+                // If the value needs its own tag strategy, replace the one in use temporarily
+                var prevTagStrategy: DERTagStrategy? = nil
+                if let tagAwareValue = value as? DERTagAware {
+                    if let childTagStrategy = type(of: tagAwareValue).childTagStrategy {
+                        prevTagStrategy = encoder.tagStrategy
+                        encoder.tagStrategy = childTagStrategy
+                    }
+                }
+                
                 if tag.contains(.constructed) {
                     let collection = DERCollection(tag: tag)
                     
@@ -847,6 +851,11 @@ fileprivate class _DERBoxingContainer {
                         collection.elements.sort { (lhs: DERElement, rhs: DERElement) -> Bool in
                             return lhs.value.lexicographicallyPrecedes(rhs.value)
                         }
+                    }
+                    
+                    // If the tag strategy was temporarily replaced, return it to the previous state
+                    if let prevTagStrategy = prevTagStrategy {
+                        encoder.tagStrategy = prevTagStrategy
                     }
                     
                     

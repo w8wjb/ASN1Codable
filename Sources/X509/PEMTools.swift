@@ -12,7 +12,6 @@ class PEMTools {
     static func wrap(_ csr: CertificationRequest) throws -> String {
         
         let encoder = DEREncoder()
-        encoder.tagStrategy = CertificationRequest.TagStrategy()
         
         let derData = try encoder.encode(csr)
         

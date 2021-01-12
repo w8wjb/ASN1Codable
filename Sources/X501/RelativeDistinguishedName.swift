@@ -9,7 +9,8 @@ import Foundation
 
 struct RelativeDistinguishedName : Codable, DERTagAware {
 
-    static var tag: DERTagOptions = .SET
+    static var childTagStrategy: DERTagStrategy? = nil
+    static var tag: DERTagOptions? = .SET
 
     var type: OID
     var value: String

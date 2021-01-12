@@ -15,7 +15,17 @@ protocol DERTagStrategy {
 }
 
 protocol DERTagAware {
-    static var tag: DERTagOptions { get }
+    
+    /**
+        Specify the custom DER tag for encoding and decoding objects of the implementing type
+     */
+    static var tag: DERTagOptions? { get }
+    
+    /**
+     Specify a strategy to use for child objects of the implementing type
+     */
+    static var childTagStrategy: DERTagStrategy? { get }
+    
 }
 
 fileprivate protocol _DERSetMarker { }
@@ -43,9 +53,13 @@ class DefaultDERTagStrategy: DERTagStrategy {
             return .UTF8String
         }
         
+        if let tagAwareValue = value as? DERTagAware {
+            if let tag = type(of: tagAwareValue).tag {
+                return tag
+            }
+        }
+        
         switch value {
-        case is DERTagAware:
-            return type(of: value as! DERTagAware).tag            
         case is Bool:
             return .BOOLEAN
         case is Int:
@@ -97,13 +111,17 @@ class DefaultDERTagStrategy: DERTagStrategy {
     
     func tag(forType type: Decodable.Type, atPath codingPath: [CodingKey]) -> DERTagOptions {
 
+        print(codingPath.compactMap({ $0.stringValue }).joined(separator: "/"))
+
         if let _ = type as? _DERSetMarker.Type {
             return .SET
         }
         
+        if let tagAwareType = type as? DERTagAware.Type, let tag = tagAwareType.tag {
+            return tag
+        }
+
         switch type {
-        case is DERTagAware.Type:
-            return (type as! DERTagAware.Type).tag
         case is Bool.Type:
             return .BOOLEAN
         case is Int.Type:

@@ -68,7 +68,6 @@ class DERDecoderTests: XCTestCase {
         encoded = Data(hexEncoded: "010100")
         decoded = try decoder.decode(Bool.self, from: encoded)
         XCTAssertFalse(decoded)
-        
     }
     
     func testDecodeInteger() throws {
@@ -167,6 +166,30 @@ class DERDecoderTests: XCTestCase {
         let decoded = try decoder.decode(NilTest.self, from: encoded)
         XCTAssertNotNil(decoded)
         
+        
+    }
+    
+    func testDecodeIfExists() throws {
+        
+        struct UnkeyedIfExistsTest: Decodable {
+            
+            init(from decoder: Decoder) throws {
+                var container = try decoder.unkeyedContainer()
+                let bool = try container.decodeIfPresent(Bool.self)
+                XCTAssertNil(bool)
+                let int8 = try container.decodeIfPresent(Int8.self)
+                XCTAssertNil(int8)
+                let int16 = try container.decodeIfPresent(Int16.self)
+                XCTAssertNil(int16)
+                let str = try container.decodeIfPresent(String.self)
+                XCTAssertNil(str)
+            }
+            
+        }
+        
+        
+        let encoded = Data(hexEncoded: "30020500")
+        let _ = try decoder.decode(UnkeyedIfExistsTest.self, from: encoded)
         
     }
     

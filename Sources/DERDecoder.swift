@@ -8,9 +8,9 @@
 import Foundation
 import Combine
 
-func trace(_ message: Any = "", caller: Any, file: String = #file, _ function: String = #function, line: Int = #line) {
-    print(message, type(of: caller), function, line)
-}
+//func trace(_ message: Any = "", caller: Any, file: String = #file, _ function: String = #function, line: Int = #line) {
+//    print(message, type(of: caller), function, line)
+//}
 
 class DERDecoder : TopLevelDecoder {
     
@@ -48,7 +48,7 @@ fileprivate class _DERDecoder : Decoder {
     
     var userInfo: [CodingUserInfoKey : Any]
     
-    let tagStrategy: DERTagStrategy
+    var tagStrategy: DERTagStrategy
     
     private let cursor: BufferCursor
     
@@ -60,19 +60,16 @@ fileprivate class _DERDecoder : Decoder {
     }
     
     func container<Key>(keyedBy type: Key.Type) throws -> KeyedDecodingContainer<Key> where Key : CodingKey {
-        trace(caller: self)
         let container = try DERKeyedDecodingContainer<Key>(referencing: self, cursor: cursor, codingPath: codingPath)
         return KeyedDecodingContainer(container)
     }
     
     func unkeyedContainer() throws -> UnkeyedDecodingContainer {
-        trace(caller: self)
         let container = try DERUnkeyedDecodingContainer(referencing: self, cursor: cursor, codingPath: codingPath)
         return container
     }
     
     func singleValueContainer() throws -> SingleValueDecodingContainer {
-        trace(caller: self)
         let container = try DERSingleValueDecodingContainer(referencing: self, cursor: cursor, codingPath: codingPath)
         return container
     }
@@ -95,8 +92,6 @@ struct DERTagKey: CodingKey {
         self.intValue = Int(tag.rawValue)
         self.stringValue = tag.description
     }
-    
-    
 }
 
 fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContainer, KeyedDecodingContainerProtocol {
@@ -502,7 +497,6 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
 
 
     func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type, forKey key: Key) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
-        trace(caller: self)
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
         let container = try DERKeyedDecodingContainer<NestedKey>(referencing: decoder, cursor: cursor, codingPath: codingPath)
@@ -511,7 +505,6 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
 
 
     func nestedUnkeyedContainer(forKey key: Key) throws -> UnkeyedDecodingContainer {
-        trace(caller: self)
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
         let container = try DERUnkeyedDecodingContainer(referencing: decoder, cursor: cursor, codingPath: codingPath)
@@ -530,6 +523,43 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
     
 }
 
+
+/**
+ User to represent an index for an unkeyed container in the codingPath
+ */
+private struct _DERKey : CodingKey, CustomStringConvertible {
+    public var stringValue: String
+    public var intValue: Int?
+    
+    var description: String {
+        if let intValue = self.intValue {
+            return "[\(intValue)]"
+        }
+        return stringValue
+    }
+    
+    public init?(stringValue: String) {
+        self.stringValue = stringValue
+        self.intValue = nil
+    }
+
+    public init?(intValue: Int) {
+        self.stringValue = "\(intValue)"
+        self.intValue = intValue
+    }
+
+    public init(stringValue: String, intValue: Int?) {
+        self.stringValue = stringValue
+        self.intValue = intValue
+    }
+
+    init(index: Int) {
+        self.stringValue = "[\(index)]"
+        self.intValue = index
+    }
+}
+
+
 // MARK: - UnkeyedEncodingContainer
 fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDecodingContainer {
 
@@ -546,6 +576,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
         return nil
     }
 
+    private var index = 0
+    
     /// The current decoding index of the container (i.e. the index of the next
     /// element to be decoded.) Incremented after every successful decode call.
     private(set) var currentIndex: Int = 0
@@ -584,9 +616,25 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
         return cursor.position >= end
     }
 
+    private func indexKey() -> CodingKey {
+        return _DERKey(index: self.index)
+    }
+    
+    func pushPath() {
+        self.codingPath.append(indexKey())
+    }
+    
+    func popPath(success: Bool = true) {
+        self.codingPath.removeLast()
+        if success == true {
+            index += 1
+        }
+    }
+    
     func decodeNil() throws -> Bool {
-        trace(caller: self)
-        
+        pushPath()
+        defer { popPath() }
+
         guard !isAtEnd else {
             throw DecodingError.valueNotFound(Any.self, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
         }
@@ -597,7 +645,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: Bool.Type) throws -> Bool {
-        trace(type, caller: self)
+        pushPath()
+        defer { popPath() }
 
         guard !isAtEnd else {
             throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
@@ -609,7 +658,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: String.Type) throws -> String {
-        trace(type, caller: self)
+        pushPath()
+        defer { popPath() }
 
         guard !isAtEnd else {
             throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
@@ -621,7 +671,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: Double.Type) throws -> Double {
-        trace(type, caller: self)
+        pushPath()
+        defer { popPath() }
 
         guard !isAtEnd else {
             throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
@@ -633,7 +684,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: Float.Type) throws -> Float {
-        trace(type, caller: self)
+        pushPath()
+        defer { popPath() }
 
         guard !isAtEnd else {
             throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
@@ -646,7 +698,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: Int.Type) throws -> Int {
-        trace(type, caller: self)
+        pushPath()
+        defer { popPath() }
 
         guard !isAtEnd else {
             throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
@@ -658,7 +711,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: Int8.Type) throws -> Int8 {
-        trace(type, caller: self)
+        pushPath()
+        defer { popPath() }
 
         guard !isAtEnd else {
             throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
@@ -670,7 +724,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: Int16.Type) throws -> Int16 {
-        trace(type, caller: self)
+        pushPath()
+        defer { popPath() }
 
         guard !isAtEnd else {
             throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
@@ -682,7 +737,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: Int32.Type) throws -> Int32 {
-        trace(type, caller: self)
+        pushPath()
+        defer { popPath() }
 
         guard !isAtEnd else {
             throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
@@ -694,7 +750,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: Int64.Type) throws -> Int64 {
-        trace(type, caller: self)
+        pushPath()
+        defer { popPath() }
 
         guard !isAtEnd else {
             throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
@@ -706,7 +763,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: UInt.Type) throws -> UInt {
-        trace(type, caller: self)
+        pushPath()
+        defer { popPath() }
 
         guard !isAtEnd else {
             throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
@@ -719,7 +777,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: UInt8.Type) throws -> UInt8 {
-        trace(type, caller: self)
+        pushPath()
+        defer { popPath() }
 
         guard !isAtEnd else {
             throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
@@ -732,7 +791,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: UInt16.Type) throws -> UInt16 {
-        trace(type, caller: self)
+        pushPath()
+        defer { popPath() }
 
         guard !isAtEnd else {
             throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
@@ -745,7 +805,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: UInt32.Type) throws -> UInt32 {
-        trace(type, caller: self)
+        pushPath()
+        defer { popPath() }
 
         guard !isAtEnd else {
             throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
@@ -758,7 +819,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: UInt64.Type) throws -> UInt64 {
-        trace(type, caller: self)
+        pushPath()
+        defer { popPath() }
 
         guard !isAtEnd else {
             throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
@@ -772,7 +834,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
 
     // MARK: Decodable
     func decode<T>(_ type: T.Type) throws -> T where T : Decodable {
-        trace(type, caller: self)
+        pushPath()
+        defer { popPath() }
 
         guard !isAtEnd else {
             throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
@@ -787,196 +850,148 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
         currentIndex += 1
         return decoded
     }
-
-    func decodeIfPresent(_ type: Bool.Type) throws -> Bool? {
+    
+    func tryDecode<T : Decodable>(_ wrapped: (() throws -> T)) throws -> T? {
         do {
+            pushPath()
             cursor.mark()
-            let decoded = try unbox(type)
+        
+            guard !isAtEnd else {
+                throw DecodingError.valueNotFound(T.self, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
+            }
+            
+            let decoded: T = try wrapped()
+            
             cursor.clearMark()
+            popPath()
             return decoded
         } catch is DecodingError {
             cursor.rewind()
+            popPath(success: false)
             return nil
+        }
+    }
+
+    func decodeIfPresent(_ type: Bool.Type) throws -> Bool? {
+        return try tryDecode {
+            return try unbox(type)
         }
     }
 
     func decodeIfPresent(_ type: String.Type) throws -> String? {
-        do {
-            cursor.mark()
-            let decoded = try unbox(type)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+        return try tryDecode {
+            return try unbox(type)
         }
     }
 
     func decodeIfPresent(_ type: Double.Type) throws -> Double? {
-        do {
-            cursor.mark()
-            let decoded = try unbox(type)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+        return try tryDecode {
+            return try unbox(type)
         }
     }
 
     func decodeIfPresent(_ type: Float.Type) throws -> Float? {
-        do {
-            cursor.mark()
+        return try tryDecode {
             let value = try unbox(Double.self)
-            let decoded = Float(value)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+            return Float(value)
         }
     }
 
     func decodeIfPresent(_ type: Int.Type) throws -> Int? {
-        do {
-            cursor.mark()
-            let decoded = try unbox(type)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+        return try tryDecode {
+            return try unbox(type)
         }
     }
 
     func decodeIfPresent(_ type: Int8.Type) throws -> Int8? {
-        do {
-            cursor.mark()
-            let decoded = try unbox(type)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+        return try tryDecode {
+            return try unbox(type)
         }
     }
 
     func decodeIfPresent(_ type: Int16.Type) throws -> Int16? {
-        do {
-            cursor.mark()
-            let decoded = try unbox(type)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+        return try tryDecode {
+            return try unbox(type)
         }
     }
 
     func decodeIfPresent(_ type: Int32.Type) throws -> Int32? {
-        do {
-            cursor.mark()
-            let decoded = try unbox(type)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+        return try tryDecode {
+            return try unbox(type)
         }
     }
 
     func decodeIfPresent(_ type: Int64.Type) throws -> Int64? {
-        do {
-            cursor.mark()
-            let decoded = try unbox(type)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+        return try tryDecode {
+            return try unbox(type)
         }
     }
 
     func decodeIfPresent(_ type: UInt.Type) throws -> UInt? {
-        do {
-            cursor.mark()
-            let decoded = try unbox(type)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+        return try tryDecode {
+            let signed = try unbox(Int.self)
+            return UInt(signed)
         }
     }
 
     func decodeIfPresent(_ type: UInt8.Type) throws -> UInt8? {
-        do {
-            cursor.mark()
-            let decoded = try unbox(type)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+        return try tryDecode {
+            let signed = try unbox(Int16.self)
+            return UInt8(signed)
         }
     }
 
     func decodeIfPresent(_ type: UInt16.Type) throws -> UInt16? {
-        do {
-            cursor.mark()
-            let decoded = try unbox(type)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+        return try tryDecode {
+            let signed = try unbox(Int32.self)
+            return UInt16(signed)
         }
     }
 
     func decodeIfPresent(_ type: UInt32.Type) throws -> UInt32? {
-        do {
-            cursor.mark()
-            let decoded = try unbox(type)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+        return try tryDecode {
+            let signed = try unbox(Int64.self)
+            return UInt32(signed)
         }
     }
 
     func decodeIfPresent(_ type: UInt64.Type) throws -> UInt64? {
-        do {
-            cursor.mark()
-            let decoded = try unbox(type)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+        return try tryDecode {
+            let signed = try unbox(Int64.self)
+            return UInt64(signed)
         }
     }
 
     func decodeIfPresent<T>(_ type: T.Type) throws -> T? where T : Decodable {
-        do {
-            cursor.mark()
-            let decoded = try unboxDecodable(type)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+        return try tryDecode {
+            if let oidType = type as? OID.Type {
+                return try unbox(oidType) as! T
+            } else if type == String.self {
+                return try unbox(String.self) as! T
+            }
+            return try unboxDecodable(type)
         }
     }
 
     func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
-        trace(caller: self)
+        
+        self.codingPath.append(indexKey())
+        defer {
+            index += 1
+            self.codingPath.removeLast()
+        }
+
         let container = try DERKeyedDecodingContainer<NestedKey>(referencing: decoder, cursor: cursor, codingPath: codingPath)
         return KeyedDecodingContainer(container)
     }
 
     func nestedUnkeyedContainer() throws -> UnkeyedDecodingContainer {
-        trace(caller: self)
+        self.codingPath.append(indexKey())
+        defer {
+            index += 1
+            self.codingPath.removeLast()
+        }
+
         let container = try DERUnkeyedDecodingContainer(referencing: decoder, cursor: cursor, codingPath: codingPath)
         return container
     }
@@ -991,89 +1006,73 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
 fileprivate class DERSingleValueDecodingContainer: _DERUnboxingContainer, SingleValueDecodingContainer {
     
     func decodeNil() -> Bool {
-        trace(caller: self)
         return try! unboxNil()
     }
 
     func decode(_ type: Bool.Type) throws -> Bool {
-        trace(type, caller: self)
         return try unbox(type)
     }
 
     func decode(_ type: String.Type) throws -> String {
-        trace(type, caller: self)
         return try unbox(type)
     }
 
     func decode(_ type: Double.Type) throws -> Double {
-        trace(type, caller: self)
         return try unbox(Double.self)
     }
 
     func decode(_ type: Float.Type) throws -> Float {
-        trace(type, caller: self)
         let value = try unbox(Double.self)
         return Float(value)
     }
 
     func decode(_ type: Int.Type) throws -> Int {
-        trace(type, caller: self)
         return try unbox(type)
     }
 
     func decode(_ type: Int8.Type) throws -> Int8 {
-        trace(type, caller: self)
         return try unbox(type)
     }
 
     func decode(_ type: Int16.Type) throws -> Int16 {
-        trace(type, caller: self)
         return try unbox(type)
     }
 
     func decode(_ type: Int32.Type) throws -> Int32 {
-        trace(type, caller: self)
         return try unbox(type)
     }
 
     func decode(_ type: Int64.Type) throws -> Int64 {
-        trace(type, caller: self)
         return try unbox(type)
     }
 
     func decode(_ type: UInt.Type) throws -> UInt {
-        trace(type, caller: self)
         let signed = try unbox(Int.self)
         return UInt(signed)
     }
 
     func decode(_ type: UInt8.Type) throws -> UInt8 {
-        trace(type, caller: self)
         let signed = try unbox(Int16.self)
         return UInt8(signed)
     }
 
     func decode(_ type: UInt16.Type) throws -> UInt16 {
-        trace(type, caller: self)
         let signed = try unbox(Int32.self)
         return UInt16(signed)
     }
 
     func decode(_ type: UInt32.Type) throws -> UInt32 {
-        trace(type, caller: self)
         let signed = try unbox(Int64.self)
         return UInt32(signed)
     }
 
     func decode(_ type: UInt64.Type) throws -> UInt64 {
-        trace(type, caller: self)
         let signed = try unbox(Int64.self)
         return UInt64(signed)
     }
 
     // MARK: Decodable
     func decode<T>(_ type: T.Type) throws -> T where T : Decodable {
-        trace(type, caller: self)
         if let oidType = type as? OID.Type {
             return try unbox(oidType) as! T
         } else if type == String.self {
@@ -1081,196 +1080,126 @@ fileprivate class DERSingleValueDecodingContainer: _DERUnboxingContainer, Single
         }
         return try unboxDecodable(type)
     }
-
-    func decodeIfPresent(_ type: Bool.Type) throws -> Bool? {
+    
+    func tryDecode<T : Decodable>(_ wrapped: (() throws -> T)) throws -> T? {
         do {
             cursor.mark()
-            let decoded = try unbox(type)
+            let decoded: T = try wrapped()
             cursor.clearMark()
             return decoded
         } catch is DecodingError {
             cursor.rewind()
             return nil
+        }
+    }
+
+    func decodeIfPresent(_ type: Bool.Type) throws -> Bool? {
+        return try tryDecode {
+            return try unbox(type)
         }
     }
 
     func decodeIfPresent(_ type: String.Type) throws -> String? {
-        do {
-            cursor.mark()
-            let decoded = try unbox(type)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+        return try tryDecode {
+            return try unbox(type)
         }
     }
 
     func decodeIfPresent(_ type: Double.Type) throws -> Double? {
-        do {
-            cursor.mark()
-            let decoded = try unbox(type)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+        return try tryDecode {
+            return try unbox(type)
         }
     }
 
     func decodeIfPresent(_ type: Float.Type) throws -> Float? {
-        do {
-            cursor.mark()
+        return try tryDecode {
             let value = try unbox(Double.self)
-            let decoded = Float(value)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+            return Float(value)
         }
     }
 
     func decodeIfPresent(_ type: Int.Type) throws -> Int? {
-        do {
-            cursor.mark()
-            let decoded = try unbox(type)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+        return try tryDecode {
+            return try unbox(type)
         }
     }
 
     func decodeIfPresent(_ type: Int8.Type) throws -> Int8? {
-        do {
-            cursor.mark()
-            let decoded = try unbox(type)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+        return try tryDecode {
+            return try unbox(type)
         }
     }
 
     func decodeIfPresent(_ type: Int16.Type) throws -> Int16? {
-        do {
-            cursor.mark()
-            let decoded = try unbox(type)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+        return try tryDecode {
+            return try unbox(type)
         }
     }
 
     func decodeIfPresent(_ type: Int32.Type) throws -> Int32? {
-        do {
-            cursor.mark()
-            let decoded = try unbox(type)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+        return try tryDecode {
+            return try unbox(type)
         }
     }
 
     func decodeIfPresent(_ type: Int64.Type) throws -> Int64? {
-        do {
-            cursor.mark()
-            let decoded = try unbox(type)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+        return try tryDecode {
+            return try unbox(type)
         }
     }
 
     func decodeIfPresent(_ type: UInt.Type) throws -> UInt? {
-        do {
-            cursor.mark()
-            let decoded = try unbox(type)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+        return try tryDecode {
+            let signed = try unbox(Int.self)
+            return UInt(signed)
         }
     }
 
     func decodeIfPresent(_ type: UInt8.Type) throws -> UInt8? {
-        do {
-            cursor.mark()
-            let decoded = try unbox(type)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+        return try tryDecode {
+            let signed = try unbox(Int16.self)
+            return UInt8(signed)
         }
     }
 
     func decodeIfPresent(_ type: UInt16.Type) throws -> UInt16? {
-        do {
-            cursor.mark()
-            let decoded = try unbox(type)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+        return try tryDecode {
+            let signed = try unbox(Int32.self)
+            return UInt16(signed)
         }
     }
 
     func decodeIfPresent(_ type: UInt32.Type) throws -> UInt32? {
-        do {
-            cursor.mark()
-            let decoded = try unbox(type)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+        return try tryDecode {
+            let signed = try unbox(Int64.self)
+            return UInt32(signed)
         }
     }
 
     func decodeIfPresent(_ type: UInt64.Type) throws -> UInt64? {
-        do {
-            cursor.mark()
-            let decoded = try unbox(type)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+        return try tryDecode {
+            let signed = try unbox(Int64.self)
+            return UInt64(signed)
         }
     }
 
     func decodeIfPresent<T>(_ type: T.Type) throws -> T? where T : Decodable {
-        do {
-            cursor.mark()
-            let decoded = try unboxDecodable(type)
-            cursor.clearMark()
-            return decoded
-        } catch is DecodingError {
-            cursor.rewind()
-            return nil
+        return try tryDecode {
+            if let oidType = type as? OID.Type {
+                return try unbox(oidType) as! T
+            } else if type == String.self {
+                return try unbox(String.self) as! T
+            }
+            return try unboxDecodable(type)
         }
     }
 
     func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
-        trace(caller: self)
         let container = try DERKeyedDecodingContainer<NestedKey>(referencing: decoder, cursor: cursor, codingPath: codingPath)
         return KeyedDecodingContainer(container)
     }
 
     func nestedUnkeyedContainer() throws -> UnkeyedDecodingContainer {
-        trace(caller: self)
         let container = try DERUnkeyedDecodingContainer(referencing: decoder, cursor: cursor, codingPath: codingPath)
         return container
     }
@@ -1312,7 +1241,6 @@ fileprivate class _DERUnboxingContainer {
     }
 
     func assertNextTag<T>(is tag: DERTagOptions, expectedType: T.Type) throws {
-        cursor.mark()
         let nextTag = try cursor.readNextTag()
         guard nextTag == tag else {
             throw DecodingError.typeMismatch(expectedType, DecodingError.Context(codingPath: codingPath, debugDescription: "Unexpected tag \(nextTag)"))
@@ -1320,13 +1248,11 @@ fileprivate class _DERUnboxingContainer {
     }
 
     func readNextPrimitiveBytes() throws -> [UInt8] {
-        cursor.mark()
         let len = try cursor.readLength()
         return cursor.nextBytes(len)
     }
     
     func unbox(_ type: String.Type, forKey key: CodingKey? = nil) throws -> String {
-        trace(type, caller: self)
         let tag = try cursor.readNextTag()
         if tag == .PrintableString || tag == .IA5String {
             return String(bytes: try readNextPrimitiveBytes(), encoding: .ascii)!
@@ -1339,8 +1265,8 @@ fileprivate class _DERUnboxingContainer {
     }
     
     func unbox(_ type: Bool.Type, forKey key: CodingKey? = nil) throws -> Bool {
-        trace(type, caller: self)
-        try assertNextTag(is: .BOOLEAN, expectedType: type)
+        let expectedTag = decoder.tagStrategy.tag(forType: type, atPath: codingPath)
+        try assertNextTag(is: expectedTag, expectedType: type)
         
         let boolBytes = try readNextPrimitiveBytes()
         
@@ -1351,20 +1277,18 @@ fileprivate class _DERUnboxingContainer {
     }
     
     func unboxNil(forKey key: CodingKey? = nil) throws -> Bool {
-        trace(caller: self)
         try assertNextTag(is: .NULL, expectedType: Void.self)
         let boolBytes = try readNextPrimitiveBytes()
         return boolBytes.isEmpty
     }
     
-    func unbox<T : FixedWidthInteger>(_ type: T.Type, forKey key: CodingKey? = nil) throws -> T {
-        trace(type, caller: self)
-        try assertNextTag(is: .INTEGER, expectedType: type)
+    func unbox<T : FixedWidthInteger & Decodable>(_ type: T.Type, forKey key: CodingKey? = nil) throws -> T {
+        let expectedTag = decoder.tagStrategy.tag(forType: type, atPath: codingPath)
+        try assertNextTag(is: expectedTag, expectedType: type)
         return try unbox(type, from: try readNextPrimitiveBytes())
     }
     
     func unbox<T : FixedWidthInteger>(_ type: T.Type, from inputBytes: [UInt8]) throws -> T {
-        trace(type, caller: self)
 
         let memSize = getMemorySize(type)
         
@@ -1386,9 +1310,8 @@ fileprivate class _DERUnboxingContainer {
     }
     
     func unbox(_ type: Double.Type, forKey key: CodingKey? = nil) throws -> Double {
-        trace(type, caller: self)
-        
-        try assertNextTag(is: .REAL, expectedType: type)
+        let expectedTag = decoder.tagStrategy.tag(forType: type, atPath: codingPath)
+        try assertNextTag(is: expectedTag, expectedType: type)
 
         var realBytes = try readNextPrimitiveBytes()
         if realBytes.isEmpty {
@@ -1442,9 +1365,9 @@ fileprivate class _DERUnboxingContainer {
     }
 
     func unbox(_ type: OID.Type, forKey key: CodingKey? = nil) throws -> OID {
-        trace(type, caller: self)
-        try assertNextTag(is: .OBJECT_IDENTIFIER, expectedType: type)
-        
+        let expectedTag = decoder.tagStrategy.tag(forType: type, atPath: codingPath)
+        try assertNextTag(is: expectedTag, expectedType: type)
+
         let oidBytes = try readNextPrimitiveBytes()
 
         var offset = 0
@@ -1487,9 +1410,9 @@ fileprivate class _DERUnboxingContainer {
     }
     
     func unbox(_ type: Data.Type, forKey key: CodingKey? = nil) throws -> Data {
-        trace(type, caller: self)
-        try assertNextTag(is: .BIT_STRING, expectedType: type)
-        
+        let expectedTag = decoder.tagStrategy.tag(forType: type, atPath: codingPath)
+        try assertNextTag(is: expectedTag, expectedType: type)
+
         var data = try readNextPrimitiveBytes()
         
         let unusedBytes: UInt8 = data.removeFirst()
@@ -1507,7 +1430,6 @@ fileprivate class _DERUnboxingContainer {
     }
     
     func unbox(_ type: Date.Type, forKey key: CodingKey? = nil) throws -> Date {
-        trace(type, caller: self)
         let nextTag = try peekNextTag()
         
         let dateFormatter = DateFormatter()
@@ -1546,7 +1468,6 @@ fileprivate class _DERUnboxingContainer {
     }
     
     func unboxDecodable<T>(_ type: T.Type, forKey key: CodingKey? = nil) throws -> T where T : Decodable {
-        trace(type, caller: self)
         if type == Data.self {
             return try unbox(Data.self) as! T
         } else if type == Date.self {
@@ -1560,6 +1481,22 @@ fileprivate class _DERUnboxingContainer {
                         
         guard nextTag == expectedTag else {
             throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Next tag [\(nextTag)] is not the expected [\(expectedTag)]"))
+        }
+        
+        // If the type needs its own tag strategy, replace the one in use temporarily
+        var prevTagStrategy: DERTagStrategy? = nil
+        if let tagAwareType = type as? DERTagAware.Type {
+            if let childTagStrategy = tagAwareType.childTagStrategy {
+                prevTagStrategy = decoder.tagStrategy
+                decoder.tagStrategy = childTagStrategy
+            }
+        }
+        
+        defer {
+            // If the tag strategy was temporarily replaced, return it to the previous state
+            if let prevTagStrategy = prevTagStrategy {
+                decoder.tagStrategy = prevTagStrategy
+            }
         }
         
         return try type.init(from: decoder)

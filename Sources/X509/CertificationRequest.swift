@@ -68,7 +68,6 @@ struct CertificationRequest : Codable {
         
         
         let encoder = DEREncoder()
-        encoder.tagStrategy = CertificationRequest.TagStrategy()
         
         let criData = try encoder.encode(certificationRequestInfo)
         
@@ -91,8 +90,6 @@ struct CertificationRequest : Codable {
         }
         
         let encoder = DEREncoder()
-        encoder.tagStrategy = CertificationRequest.TagStrategy()
-        
         let criData = try encoder.encode(certificationRequestInfo)
         
         let publicKey = certificationRequestInfo.publicKey
@@ -155,12 +152,14 @@ struct CertificationRequest : Codable {
         
     }
 
-    
-    class TagStrategy : CertificationRequestInfo.TagStrategy { }
 }
 
 
-struct CertificationRequestInfo : Codable {
+struct CertificationRequestInfo : Codable, DERTagAware {
+    
+    static var tag: DERTagOptions? = .SEQUENCE
+    
+    static var childTagStrategy: DERTagStrategy? = TagStrategy()
     
     enum Version: Int {
         case v1 = 0

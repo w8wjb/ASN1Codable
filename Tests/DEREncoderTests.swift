@@ -147,12 +147,11 @@ class DEREncoderTests: XCTestCase {
         }
         
         var encoded = try encoder.encode(OIDTest())
-        XCTAssertEqual("0603550403", encoded.hexEncodedString())
+        XCTAssertEqual("30050603550403", encoded.hexEncodedString())
         
-        // A toplevel OID will encode itself as a String
         encoded = try encoder.encode(OID.ST)
         // PrintableString 2.5.4.8
-        XCTAssertEqual("1307322e352e342e38", encoded.hexEncodedString())
+        XCTAssertEqual("0603550408", encoded.hexEncodedString())
 
     }
     
@@ -179,59 +178,29 @@ class DEREncoderTests: XCTestCase {
     
     func testEncodeData() throws {
         
-        // Wrapping in an outside structure, since a top level Data will encode itself as an array of bytes
-        struct DataTest: Encodable {
-            
-            let data: Data
-            
-            func encode(to encoder: Encoder) throws {
-                var container = encoder.singleValueContainer()
-                try container.encode(data)
-            }
-        }
-        
         let deadbeef: [UInt8] = [0xDE, 0xAD, 0xBE, 0xEF]
         let data = Data(deadbeef)
-        let wrapper = DataTest(data: data)
-        var encoded = try encoder.encode(wrapper)
+        let encoded = try encoder.encode(data)
         XCTAssertEqual("030500deadbeef", encoded.hexEncodedString())
-
-        // Try encoding as an array of bytes
-        encoded = try encoder.encode(data)
-        XCTAssertEqual("3010020200de020200ad020200be020200ef", encoded.hexEncodedString())
 
         
     }
     
     func testEncodeDate() throws {
 
-        // Wrapping in an outside structure, since a top level Date will encode itself as a Double
-        struct DateTest: Encodable {
-            
-            let date: Date
-            
-            init() {
-                let timeZone = TimeZone(identifier: "America/Detroit")!
-                let components = DateComponents(calendar: .current,
-                                                timeZone: timeZone,
-                                                year: 2020,
-                                                month: 12,
-                                                day: 25,
-                                                hour: 18,
-                                                minute: 30,
-                                                second: 20)
+        let timeZone = TimeZone(identifier: "America/Detroit")!
+        let components = DateComponents(calendar: .current,
+                                        timeZone: timeZone,
+                                        year: 2020,
+                                        month: 12,
+                                        day: 25,
+                                        hour: 18,
+                                        minute: 30,
+                                        second: 20)
 
-                self.date = components.date!
-            }
-            
-            func encode(to encoder: Encoder) throws {
-                var container = encoder.singleValueContainer()
-                try container.encode(date)
-            }
-        }
+        let date = components.date!
         
-        let obj = DateTest()
-        let encoded = try encoder.encode(obj)
+        let encoded = try encoder.encode(date)
         XCTAssertEqual("170d3230313232353233333032305a", encoded.hexEncodedString())
         
     }
@@ -267,15 +236,7 @@ class DEREncoderTests: XCTestCase {
     }
 
     func testEncodeSet() throws {
-        
-        struct TestSet: Encodable {
-            func encode(to encoder: Encoder) throws {
-                var container = encoder.singleValueContainer()
-                try container.encode(Set(["Peter", "Paul", "Mary"]))
-            }
-        }
-        
-        let encoded = try encoder.encode(TestSet())
+        let encoded = try encoder.encode(Set(["Peter", "Paul", "Mary"]))
         XCTAssertEqual("311313044d61727913045061756c13055065746572", encoded.hexEncodedString())
     }
 
