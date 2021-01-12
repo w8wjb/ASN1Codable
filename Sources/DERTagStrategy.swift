@@ -111,8 +111,6 @@ class DefaultDERTagStrategy: DERTagStrategy {
     
     func tag(forType type: Decodable.Type, atPath codingPath: [CodingKey]) -> DERTagOptions {
 
-        print(codingPath.compactMap({ $0.stringValue }).joined(separator: "/"))
-
         if let _ = type as? _DERSetMarker.Type {
             return .SET
         }

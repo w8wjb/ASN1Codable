@@ -1499,6 +1499,7 @@ fileprivate class _DERUnboxingContainer {
             }
         }
         
+        decoder.codingPath = self.codingPath
         return try type.init(from: decoder)
     }
     
