@@ -17,17 +17,29 @@
 		AD03F50D25A3474800405E26 /* DERTagStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD03F50C25A3474800405E26 /* DERTagStrategy.swift */; };
 		AD03F51325A34FEF00405E26 /* DEREncoderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD03F51225A34FEF00405E26 /* DEREncoderTests.swift */; };
 		AD1229DE25A8BA25002331FC /* BufferCursor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD1229DD25A8BA25002331FC /* BufferCursor.swift */; };
+		AD2063BA25AE5B32006BC8A2 /* ASN1Codable.h in Headers */ = {isa = PBXBuildFile; fileRef = AD03F4DA25A2AB2A00405E26 /* ASN1Codable.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		AD2063C125AE5B81006BC8A2 /* BufferCursor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD1229DD25A8BA25002331FC /* BufferCursor.swift */; };
+		AD2063C225AE5B81006BC8A2 /* DERCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD03F50825A3454000405E26 /* DERCollection.swift */; };
+		AD2063C325AE5B81006BC8A2 /* DERDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8E5F2025A4F1CA00E62FD6 /* DERDecoder.swift */; };
+		AD2063C425AE5B81006BC8A2 /* DERElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD03F50025A341E300405E26 /* DERElement.swift */; };
+		AD2063C525AE5B81006BC8A2 /* DEREncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD03F4F725A2AC9600405E26 /* DEREncoder.swift */; };
+		AD2063C625AE5B82006BC8A2 /* DERPrimitive.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD03F50425A344BD00405E26 /* DERPrimitive.swift */; };
+		AD2063C725AE5B82006BC8A2 /* DERTagStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD03F50C25A3474800405E26 /* DERTagStrategy.swift */; };
+		AD2063C825AE5B82006BC8A2 /* OID.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD03F4FC25A2AD7E00405E26 /* OID.swift */; };
+		AD2063C925AE5B82006BC8A2 /* Attribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6F98BE25A37C3700AD06F4 /* Attribute.swift */; };
+		AD2063CA25AE5B82006BC8A2 /* DistinguishedName.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6F98B925A374BA00AD06F4 /* DistinguishedName.swift */; };
+		AD2063CB25AE5B82006BC8A2 /* RelativeDistinguishedName.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6F98C225A37F4300AD06F4 /* RelativeDistinguishedName.swift */; };
+		AD2063CC25AE5B82006BC8A2 /* CertificationRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6F98B525A3731000AD06F4 /* CertificationRequest.swift */; };
+		AD2063CD25AE5B82006BC8A2 /* PEMTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADAFECE925A49B4900CC5D6C /* PEMTools.swift */; };
 		AD6F98B225A35BAC00AD06F4 /* Data+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6F98B125A35BAC00AD06F4 /* Data+Extension.swift */; };
 		AD6F98B625A3731000AD06F4 /* CertificationRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6F98B525A3731000AD06F4 /* CertificationRequest.swift */; };
 		AD6F98BA25A374BA00AD06F4 /* DistinguishedName.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6F98B925A374BA00AD06F4 /* DistinguishedName.swift */; };
 		AD6F98BF25A37C3700AD06F4 /* Attribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6F98BE25A37C3700AD06F4 /* Attribute.swift */; };
 		AD6F98C325A37F4300AD06F4 /* RelativeDistinguishedName.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6F98C225A37F4300AD06F4 /* RelativeDistinguishedName.swift */; };
-		AD8E5F1A25A4F0F500E62FD6 /* test.expected.csr in Resources */ = {isa = PBXBuildFile; fileRef = AD8E5F1925A4F0F500E62FD6 /* test.expected.csr */; };
 		AD8E5F1D25A4F12000E62FD6 /* test.expected.csr in Resources */ = {isa = PBXBuildFile; fileRef = AD8E5F1925A4F0F500E62FD6 /* test.expected.csr */; };
 		AD8E5F2125A4F1CA00E62FD6 /* DERDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8E5F2025A4F1CA00E62FD6 /* DERDecoder.swift */; };
 		AD8E5F2525A509B100E62FD6 /* DERDecoderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8E5F2425A509B100E62FD6 /* DERDecoderTests.swift */; };
 		AD9E2B9825A383E3001B27DC /* CertificationRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD9E2B9725A383E3001B27DC /* CertificationRequestTests.swift */; };
-		AD9E2B9E25A38FEC001B27DC /* test.private.key in Resources */ = {isa = PBXBuildFile; fileRef = AD9E2B9D25A38FEC001B27DC /* test.private.key */; };
 		AD9E2BA125A39102001B27DC /* test.private.key in Resources */ = {isa = PBXBuildFile; fileRef = AD9E2B9D25A38FEC001B27DC /* test.private.key */; };
 		ADAFECEA25A49B4900CC5D6C /* PEMTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADAFECE925A49B4900CC5D6C /* PEMTools.swift */; };
 /* End PBXBuildFile section */
@@ -56,6 +68,7 @@
 		AD03F50C25A3474800405E26 /* DERTagStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DERTagStrategy.swift; sourceTree = "<group>"; };
 		AD03F51225A34FEF00405E26 /* DEREncoderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DEREncoderTests.swift; sourceTree = "<group>"; };
 		AD1229DD25A8BA25002331FC /* BufferCursor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BufferCursor.swift; sourceTree = "<group>"; };
+		AD20638225AE5935006BC8A2 /* ASN1Codable.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ASN1Codable.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD6F98B125A35BAC00AD06F4 /* Data+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Extension.swift"; sourceTree = "<group>"; };
 		AD6F98B525A3731000AD06F4 /* CertificationRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificationRequest.swift; sourceTree = "<group>"; };
 		AD6F98B925A374BA00AD06F4 /* DistinguishedName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistinguishedName.swift; sourceTree = "<group>"; };
@@ -85,6 +98,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AD20637F25AE5935006BC8A2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -102,6 +122,7 @@
 			children = (
 				AD03F4D725A2AB2900405E26 /* ASN1Codable.framework */,
 				AD03F4E025A2AB2A00405E26 /* ASN1CodableTests.xctest */,
+				AD20638225AE5935006BC8A2 /* ASN1Codable.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -177,12 +198,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AD20637D25AE5935006BC8A2 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AD2063BA25AE5B32006BC8A2 /* ASN1Codable.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		AD03F4D625A2AB2900405E26 /* ASN1Codable */ = {
+		AD03F4D625A2AB2900405E26 /* Mac ASN1Codable */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AD03F4EB25A2AB2A00405E26 /* Build configuration list for PBXNativeTarget "ASN1Codable" */;
+			buildConfigurationList = AD03F4EB25A2AB2A00405E26 /* Build configuration list for PBXNativeTarget "Mac ASN1Codable" */;
 			buildPhases = (
 				AD03F4D225A2AB2900405E26 /* Headers */,
 				AD03F4D325A2AB2900405E26 /* Sources */,
@@ -193,7 +222,7 @@
 			);
 			dependencies = (
 			);
-			name = ASN1Codable;
+			name = "Mac ASN1Codable";
 			productName = ASN1Codable;
 			productReference = AD03F4D725A2AB2900405E26 /* ASN1Codable.framework */;
 			productType = "com.apple.product-type.framework";
@@ -216,6 +245,24 @@
 			productReference = AD03F4E025A2AB2A00405E26 /* ASN1CodableTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		AD20638125AE5935006BC8A2 /* iOS ASN1Codable */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AD20639325AE5936006BC8A2 /* Build configuration list for PBXNativeTarget "iOS ASN1Codable" */;
+			buildPhases = (
+				AD20637D25AE5935006BC8A2 /* Headers */,
+				AD20637E25AE5935006BC8A2 /* Sources */,
+				AD20637F25AE5935006BC8A2 /* Frameworks */,
+				AD20638025AE5935006BC8A2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "iOS ASN1Codable";
+			productName = ASN1Codable;
+			productReference = AD20638225AE5935006BC8A2 /* ASN1Codable.framework */;
+			productType = "com.apple.product-type.framework";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -230,6 +277,9 @@
 						LastSwiftMigration = 1230;
 					};
 					AD03F4DF25A2AB2A00405E26 = {
+						CreatedOnToolsVersion = 12.3;
+					};
+					AD20638125AE5935006BC8A2 = {
 						CreatedOnToolsVersion = 12.3;
 					};
 				};
@@ -247,8 +297,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				AD03F4D625A2AB2900405E26 /* ASN1Codable */,
+				AD03F4D625A2AB2900405E26 /* Mac ASN1Codable */,
 				AD03F4DF25A2AB2A00405E26 /* ASN1CodableTests */,
+				AD20638125AE5935006BC8A2 /* iOS ASN1Codable */,
 			);
 		};
 /* End PBXProject section */
@@ -258,8 +309,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AD9E2B9E25A38FEC001B27DC /* test.private.key in Resources */,
-				AD8E5F1A25A4F0F500E62FD6 /* test.expected.csr in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -269,6 +318,13 @@
 			files = (
 				AD9E2BA125A39102001B27DC /* test.private.key in Resources */,
 				AD8E5F1D25A4F12000E62FD6 /* test.expected.csr in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AD20638025AE5935006BC8A2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -306,12 +362,32 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AD20637E25AE5935006BC8A2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AD2063C125AE5B81006BC8A2 /* BufferCursor.swift in Sources */,
+				AD2063C225AE5B81006BC8A2 /* DERCollection.swift in Sources */,
+				AD2063C325AE5B81006BC8A2 /* DERDecoder.swift in Sources */,
+				AD2063C425AE5B81006BC8A2 /* DERElement.swift in Sources */,
+				AD2063C525AE5B81006BC8A2 /* DEREncoder.swift in Sources */,
+				AD2063C625AE5B82006BC8A2 /* DERPrimitive.swift in Sources */,
+				AD2063C725AE5B82006BC8A2 /* DERTagStrategy.swift in Sources */,
+				AD2063C825AE5B82006BC8A2 /* OID.swift in Sources */,
+				AD2063C925AE5B82006BC8A2 /* Attribute.swift in Sources */,
+				AD2063CA25AE5B82006BC8A2 /* DistinguishedName.swift in Sources */,
+				AD2063CB25AE5B82006BC8A2 /* RelativeDistinguishedName.swift in Sources */,
+				AD2063CC25AE5B82006BC8A2 /* CertificationRequest.swift in Sources */,
+				AD2063CD25AE5B82006BC8A2 /* PEMTools.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
 		AD03F4E325A2AB2A00405E26 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = AD03F4D625A2AB2900405E26 /* ASN1Codable */;
+			target = AD03F4D625A2AB2900405E26 /* Mac ASN1Codable */;
 			targetProxy = AD03F4E225A2AB2A00405E26 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -369,6 +445,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -427,6 +504,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -457,7 +535,7 @@
 					"@loader_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.w8wjb.ASN1Codable;
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = ASN1Codable;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -483,7 +561,7 @@
 					"@loader_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.w8wjb.ASN1Codable;
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = ASN1Codable;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 			};
@@ -527,6 +605,59 @@
 			};
 			name = Release;
 		};
+		AD20639425AE5936006BC8A2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = EX25C7QZ85;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = ASN1Codable/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.3;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.w8wjb.ASN1Codable;
+				PRODUCT_NAME = ASN1Codable;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AD20639525AE5936006BC8A2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = EX25C7QZ85;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = ASN1Codable/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.3;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.w8wjb.ASN1Codable;
+				PRODUCT_NAME = ASN1Codable;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -539,7 +670,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AD03F4EB25A2AB2A00405E26 /* Build configuration list for PBXNativeTarget "ASN1Codable" */ = {
+		AD03F4EB25A2AB2A00405E26 /* Build configuration list for PBXNativeTarget "Mac ASN1Codable" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AD03F4EC25A2AB2A00405E26 /* Debug */,
@@ -553,6 +684,15 @@
 			buildConfigurations = (
 				AD03F4EF25A2AB2A00405E26 /* Debug */,
 				AD03F4F025A2AB2A00405E26 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AD20639325AE5936006BC8A2 /* Build configuration list for PBXNativeTarget "iOS ASN1Codable" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AD20639425AE5936006BC8A2 /* Debug */,
+				AD20639525AE5936006BC8A2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
