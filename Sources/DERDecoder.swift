@@ -13,10 +13,13 @@ import Combine
 //}
 
 public class DERDecoder : TopLevelDecoder {
-    
     public typealias Input = Data
     
-    public var tagStrategy: DERTagStrategy = DefaultDERTagStrategy()
+    public var tagStrategy: DERTagStrategy
+    
+    public init(tagStrategy: DERTagStrategy = DefaultDERTagStrategy()) {
+        self.tagStrategy = tagStrategy
+    }
     
     open func decode<T : Decodable>(_ type: T.Type, from data: Data) throws -> T {
         

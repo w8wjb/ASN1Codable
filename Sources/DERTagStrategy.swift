@@ -36,6 +36,10 @@ open class DefaultDERTagStrategy: DERTagStrategy {
     
     static let printableStringCharset = CharacterSet(charactersIn: "ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz0123456789 '()+,-./:=?")
     
+    public init() {
+        
+    }
+    
     open func tag(forPath: [CodingKey]) -> DERTagOptions {
         return .SEQUENCE
     }

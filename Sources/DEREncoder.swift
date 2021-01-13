@@ -20,8 +20,13 @@ public class DEREncoder : TopLevelEncoder {
     /**
      Specifies the strategy for forming DER tags
      */
-    public var tagStrategy : DERTagStrategy = DefaultDERTagStrategy()
-    
+    public var tagStrategy : DERTagStrategy
+
+    public init(userInfo: [CodingUserInfoKey : Any] = [:], tagStrategy: DERTagStrategy = DefaultDERTagStrategy()) {
+        self.userInfo = userInfo
+        self.tagStrategy = tagStrategy
+    }
+
     public func encode<T>(_ value: T) throws -> Data where T : Encodable {
         let encoder = _DEREncoder(userInfo: userInfo, tagStrategy: tagStrategy)
 
