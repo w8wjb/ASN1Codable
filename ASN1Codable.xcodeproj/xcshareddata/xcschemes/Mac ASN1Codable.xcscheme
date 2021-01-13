@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "AD03F4D625A2AB2900405E26"
-               BuildableName = "Mac_ASN1Codable.framework"
+               BuildableName = "ASN1Codable.framework"
                BlueprintName = "Mac ASN1Codable"
                ReferencedContainer = "container:ASN1Codable.xcodeproj">
             </BuildableReference>
@@ -62,7 +62,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AD03F4D625A2AB2900405E26"
-            BuildableName = "Mac_ASN1Codable.framework"
+            BuildableName = "ASN1Codable.framework"
             BlueprintName = "Mac ASN1Codable"
             ReferencedContainer = "container:ASN1Codable.xcodeproj">
          </BuildableReference>

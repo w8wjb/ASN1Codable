@@ -7,17 +7,17 @@
 
 import Foundation
 
-struct CertificationRequest : Codable {
+public struct CertificationRequest : Codable {
     
-    let certificationRequestInfo: CertificationRequestInfo
-    var signatureAlgorithm: SecKeyAlgorithm?
-    var signature: Data?
+    public let certificationRequestInfo: CertificationRequestInfo
+    public var signatureAlgorithm: SecKeyAlgorithm?
+    public var signature: Data?
     
-    init(info: CertificationRequestInfo) {
+    public init(info: CertificationRequestInfo) {
         self.certificationRequestInfo = info
     }
     
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         certificationRequestInfo = try container.decode(CertificationRequestInfo.self, forKey: .certificationRequestInfo)
         
@@ -58,7 +58,7 @@ struct CertificationRequest : Codable {
         }
     }
     
-    mutating func sign(privateKey: SecKey, algorithm: SecKeyAlgorithm) throws {
+    public mutating func sign(privateKey: SecKey, algorithm: SecKeyAlgorithm) throws {
         
         signatureAlgorithm = algorithm
         
@@ -79,7 +79,7 @@ struct CertificationRequest : Codable {
         
     }
     
-    func verify() throws -> Bool {
+    public func verify() throws -> Bool {
         
         guard let signatureAlgorithm = self.signatureAlgorithm else {
             throw NSError(domain: "Security", code: Int(errSecInvalidAlgorithm), userInfo: nil)
@@ -109,7 +109,7 @@ struct CertificationRequest : Codable {
         case signature = "signature"
     }
     
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(certificationRequestInfo, forKey: .certificationRequestInfo)
         
@@ -155,22 +155,22 @@ struct CertificationRequest : Codable {
 }
 
 
-struct CertificationRequestInfo : Codable, DERTagAware {
+public struct CertificationRequestInfo : Codable, DERTagAware {
     
-    static var tag: DERTagOptions? = .SEQUENCE
+    public static var tag: DERTagOptions? = .SEQUENCE
     
-    static var childTagStrategy: DERTagStrategy? = TagStrategy()
+    public static var childTagStrategy: DERTagStrategy? = TagStrategy()
     
-    enum Version: Int {
+    public enum Version: Int {
         case v1 = 0
     }
     
-    var version = Version.v1
-    var subject: DistinguishedName
-    var publicKey: SecKey
-    var attributes = [Attribute<String>]()
+    public var version = Version.v1
+    public var subject: DistinguishedName
+    public var publicKey: SecKey
+    public var attributes = [Attribute<String>]()
     
-    init(subject: DistinguishedName, publicKey: SecKey) {
+    public init(subject: DistinguishedName, publicKey: SecKey) {
         self.subject = subject
         self.publicKey = publicKey
     }
@@ -184,7 +184,7 @@ struct CertificationRequestInfo : Codable, DERTagAware {
         case subjectPublicKey = "subjectPublicKey"
     }
     
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let versionRaw = try container.decode(Int.self, forKey: .version)
         self.version = Version(rawValue: versionRaw) ?? .v1
@@ -224,9 +224,9 @@ struct CertificationRequestInfo : Codable, DERTagAware {
         
     }
     
-    class TagStrategy : DefaultDERTagStrategy {
+    public class TagStrategy : DefaultDERTagStrategy {
         
-        override func tag(forType type: Decodable.Type, atPath codingPath: [CodingKey]) -> DERTagOptions {
+        public override func tag(forType type: Decodable.Type, atPath codingPath: [CodingKey]) -> DERTagOptions {
             if let lastKey = codingPath.last as? CodingKeys {
                 if lastKey == .attributes {
                     // attributes    [0] Attributes{{ CRIAttributes }}
@@ -237,7 +237,7 @@ struct CertificationRequestInfo : Codable, DERTagAware {
             return super.tag(forType: type, atPath: codingPath)
         }
         
-        override func tag(forValue value: Encodable, atPath codingPath: [CodingKey]) -> DERTagOptions {
+        public override func tag(forValue value: Encodable, atPath codingPath: [CodingKey]) -> DERTagOptions {
             
             if let lastKey = codingPath.last as? CodingKeys {
                 if lastKey == .attributes {
@@ -250,7 +250,7 @@ struct CertificationRequestInfo : Codable, DERTagAware {
         
     }
     
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(version.rawValue, forKey: .version)
         try container.encode(subject, forKey: .subject)

@@ -12,11 +12,11 @@ import Combine
 //    print(message, type(of: caller), function, line)
 //}
 
-class DERDecoder : TopLevelDecoder {
+public class DERDecoder : TopLevelDecoder {
     
-    typealias Input = Data
+    public typealias Input = Data
     
-    var tagStrategy: DERTagStrategy = DefaultDERTagStrategy()
+    public var tagStrategy: DERTagStrategy = DefaultDERTagStrategy()
     
     open func decode<T : Decodable>(_ type: T.Type, from data: Data) throws -> T {
         

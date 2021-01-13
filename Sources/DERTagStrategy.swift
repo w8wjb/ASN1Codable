@@ -8,13 +8,13 @@
 import Foundation
 
 
-protocol DERTagStrategy {
+public protocol DERTagStrategy {
     func tag(forPath codingPath: [CodingKey]) -> DERTagOptions
     func tag(forType type: Decodable.Type, atPath codingPath: [CodingKey]) -> DERTagOptions
     func tag(forValue value: Encodable, atPath codingPath: [CodingKey]) -> DERTagOptions
 }
 
-protocol DERTagAware {
+public protocol DERTagAware {
     
     /**
         Specify the custom DER tag for encoding and decoding objects of the implementing type
@@ -32,15 +32,15 @@ fileprivate protocol _DERSetMarker { }
 
 extension Set : _DERSetMarker where Element: Decodable { }
 
-class DefaultDERTagStrategy: DERTagStrategy {
+open class DefaultDERTagStrategy: DERTagStrategy {
     
     static let printableStringCharset = CharacterSet(charactersIn: "ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz0123456789 '()+,-./:=?")
     
-    func tag(forPath: [CodingKey]) -> DERTagOptions {
+    open func tag(forPath: [CodingKey]) -> DERTagOptions {
         return .SEQUENCE
     }
     
-    func tag(forValue value: Encodable, atPath codingPath: [CodingKey]) -> DERTagOptions {
+    open func tag(forValue value: Encodable, atPath codingPath: [CodingKey]) -> DERTagOptions {
         
         if let str = value as? String {
             if CharacterSet(charactersIn: str).isSubset(of: DefaultDERTagStrategy.printableStringCharset) {
@@ -109,7 +109,7 @@ class DefaultDERTagStrategy: DERTagStrategy {
         
     }
     
-    func tag(forType type: Decodable.Type, atPath codingPath: [CodingKey]) -> DERTagOptions {
+    open func tag(forType type: Decodable.Type, atPath codingPath: [CodingKey]) -> DERTagOptions {
 
         if let _ = type as? _DERSetMarker.Type {
             return .SET

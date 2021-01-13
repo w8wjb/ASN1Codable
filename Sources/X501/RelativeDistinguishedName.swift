@@ -7,20 +7,20 @@
 
 import Foundation
 
-struct RelativeDistinguishedName : Codable, DERTagAware {
+public struct RelativeDistinguishedName : Codable, DERTagAware {
 
-    static var childTagStrategy: DERTagStrategy? = nil
-    static var tag: DERTagOptions? = .SET
+    public static var childTagStrategy: DERTagStrategy? = nil
+    public static var tag: DERTagOptions? = .SET
 
-    var type: OID
-    var value: String
+    public var type: OID
+    public var value: String
     
-    init(type: OID, value: String) {
+    public init(type: OID, value: String) {
         self.type = type
         self.value = value
     }
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         var container = try decoder.unkeyedContainer()
         let dict = try container.decode([OID:String].self)
         guard let (key, value) = dict.first else {
@@ -30,7 +30,7 @@ struct RelativeDistinguishedName : Codable, DERTagAware {
         self.value = value
     }
     
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.unkeyedContainer()
         try container.encode([type:value])
     }

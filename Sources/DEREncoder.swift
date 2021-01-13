@@ -11,18 +11,18 @@ import Combine
 /**
  Top-level DER Encoder
  */
-class DEREncoder : TopLevelEncoder {
-    typealias Output = Data
+public class DEREncoder : TopLevelEncoder {
+    public typealias Output = Data
     
     /// Contextual user-provided information for use during encoding.
-    open var userInfo: [CodingUserInfoKey : Any] = [:]
+    public var userInfo: [CodingUserInfoKey : Any] = [:]
     
     /**
      Specifies the strategy for forming DER tags
      */
-    open var tagStrategy : DERTagStrategy = DefaultDERTagStrategy()
+    public var tagStrategy : DERTagStrategy = DefaultDERTagStrategy()
     
-    func encode<T>(_ value: T) throws -> Data where T : Encodable {
+    public func encode<T>(_ value: T) throws -> Data where T : Encodable {
         let encoder = _DEREncoder(userInfo: userInfo, tagStrategy: tagStrategy)
 
         var container = encoder.singleValueContainer()

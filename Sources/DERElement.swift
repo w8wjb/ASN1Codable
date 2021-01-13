@@ -47,8 +47,8 @@ extension DERElement {
     }
 }
 
-struct DERTagOptions: OptionSet, CustomStringConvertible {
-    var rawValue: UInt8
+public struct DERTagOptions: OptionSet, CustomStringConvertible {
+    public var rawValue: UInt8
     
     static let Universal = DERTagOptions([])
     static let Application = DERTagOptions(rawValue: 0b01000000)
@@ -76,11 +76,15 @@ struct DERTagOptions: OptionSet, CustomStringConvertible {
     static let UTCTime = DERTagOptions(rawValue: 23)
     static let GeneralizedTime = DERTagOptions(rawValue: 24)
     
-    var isConstructed: Bool {
+    public var isConstructed: Bool {
         return self.contains(.constructed)
     }
     
-    var description: String {
+    public init(rawValue: UInt8) {
+        self.rawValue = rawValue
+    }
+    
+    public var description: String {
         switch self {
         case .BOOLEAN:
             return "BOOLEAN"

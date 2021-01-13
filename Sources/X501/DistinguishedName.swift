@@ -7,21 +7,21 @@
 
 import Foundation
 
-struct DistinguishedName : Codable {
+public struct DistinguishedName : Codable {
 
-    typealias rdnTuple = (OID, String)
+    public typealias rdnTuple = (OID, String)
     
-    var names: [RelativeDistinguishedName]
+    public var names: [RelativeDistinguishedName]
 
-    init(names: [RelativeDistinguishedName]) {
+    public init(names: [RelativeDistinguishedName]) {
         self.names = names
     }
     
-    init(_ tuples: rdnTuple...) {
+    public init(_ tuples: rdnTuple...) {
         self.names = tuples.compactMap { RelativeDistinguishedName(type: $0, value: $1) }
     }
     
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         var container = try decoder.unkeyedContainer()
         self.names = [RelativeDistinguishedName]()
         while !container.isAtEnd {
@@ -29,7 +29,7 @@ struct DistinguishedName : Codable {
         }
     }
     
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.unkeyedContainer()
         for name in names {
             try container.encode(name)

@@ -7,9 +7,9 @@
 
 import Foundation
 
-class PEMTools {
+public class PEMTools {
     
-    static func wrap(_ csr: CertificationRequest) throws -> String {
+    public static func wrap(_ csr: CertificationRequest) throws -> String {
         
         let encoder = DEREncoder()
         
