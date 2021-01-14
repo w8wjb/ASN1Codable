@@ -125,6 +125,13 @@ class DERDecoderTests: XCTestCase {
         
     }
     
+    func testDecodeBInt() throws {
+        let encoded = Data(hexEncoded: "0211008210cfb0d240e3594463e0bb63828b00")
+        let expected = BInt("172886928669790476064670243504169061120")!
+        XCTAssertEqual(expected.description, try decoder.decode(BInt.self, from: encoded).description)
+
+    }
+    
     func testDecodeReal() throws {
         
         var encoded = Data(hexEncoded: "0906806800ffffff")

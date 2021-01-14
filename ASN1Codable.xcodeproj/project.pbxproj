@@ -16,6 +16,9 @@
 		AD03F50925A3454000405E26 /* DERCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD03F50825A3454000405E26 /* DERCollection.swift */; };
 		AD03F50D25A3474800405E26 /* DERTagStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD03F50C25A3474800405E26 /* DERTagStrategy.swift */; };
 		AD03F51325A34FEF00405E26 /* DEREncoderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD03F51225A34FEF00405E26 /* DEREncoderTests.swift */; };
+		AD0DFAA925AFBEF000952DBF /* 1024b-rsa-example-cert.der in Resources */ = {isa = PBXBuildFile; fileRef = AD0DFAA825AFBEF000952DBF /* 1024b-rsa-example-cert.der */; };
+		AD0DFAB125B0712800952DBF /* 1024b-rsa-example-cert.pem in Resources */ = {isa = PBXBuildFile; fileRef = AD0DFAB025B0712800952DBF /* 1024b-rsa-example-cert.pem */; };
+		AD0DFABE25B0723F00952DBF /* CertificateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0DFABD25B0723F00952DBF /* CertificateTests.swift */; };
 		AD1229DE25A8BA25002331FC /* BufferCursor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD1229DD25A8BA25002331FC /* BufferCursor.swift */; };
 		AD2063BA25AE5B32006BC8A2 /* ASN1Codable.h in Headers */ = {isa = PBXBuildFile; fileRef = AD03F4DA25A2AB2A00405E26 /* ASN1Codable.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		AD2063C125AE5B81006BC8A2 /* BufferCursor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD1229DD25A8BA25002331FC /* BufferCursor.swift */; };
@@ -31,6 +34,12 @@
 		AD2063CB25AE5B82006BC8A2 /* RelativeDistinguishedName.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6F98C225A37F4300AD06F4 /* RelativeDistinguishedName.swift */; };
 		AD2063CC25AE5B82006BC8A2 /* CertificationRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6F98B525A3731000AD06F4 /* CertificationRequest.swift */; };
 		AD2063CD25AE5B82006BC8A2 /* PEMTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADAFECE925A49B4900CC5D6C /* PEMTools.swift */; };
+		AD51C1F125B07486003A3D18 /* Certificate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0DFAB825B071EA00952DBF /* Certificate.swift */; };
+		AD51C1F925B094F9003A3D18 /* isrgrootx1.pem in Resources */ = {isa = PBXBuildFile; fileRef = AD51C1F825B094F9003A3D18 /* isrgrootx1.pem */; };
+		AD51C20125B0953E003A3D18 /* isrgrootx1.der in Resources */ = {isa = PBXBuildFile; fileRef = AD51C20025B0953E003A3D18 /* isrgrootx1.der */; };
+		AD51C22225B0A36B003A3D18 /* BInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD51C21725B0A340003A3D18 /* BInt.swift */; };
+		AD51C22625B0A375003A3D18 /* BInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD51C21725B0A340003A3D18 /* BInt.swift */; };
+		AD51C22725B0A375003A3D18 /* Certificate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0DFAB825B071EA00952DBF /* Certificate.swift */; };
 		AD6F98B225A35BAC00AD06F4 /* Data+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6F98B125A35BAC00AD06F4 /* Data+Extension.swift */; };
 		AD6F98B625A3731000AD06F4 /* CertificationRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6F98B525A3731000AD06F4 /* CertificationRequest.swift */; };
 		AD6F98BA25A374BA00AD06F4 /* DistinguishedName.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6F98B925A374BA00AD06F4 /* DistinguishedName.swift */; };
@@ -67,8 +76,15 @@
 		AD03F50825A3454000405E26 /* DERCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DERCollection.swift; sourceTree = "<group>"; };
 		AD03F50C25A3474800405E26 /* DERTagStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DERTagStrategy.swift; sourceTree = "<group>"; };
 		AD03F51225A34FEF00405E26 /* DEREncoderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DEREncoderTests.swift; sourceTree = "<group>"; };
+		AD0DFAA825AFBEF000952DBF /* 1024b-rsa-example-cert.der */ = {isa = PBXFileReference; lastKnownFileType = file; path = "1024b-rsa-example-cert.der"; sourceTree = "<group>"; };
+		AD0DFAB025B0712800952DBF /* 1024b-rsa-example-cert.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "1024b-rsa-example-cert.pem"; sourceTree = "<group>"; };
+		AD0DFAB825B071EA00952DBF /* Certificate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Certificate.swift; sourceTree = "<group>"; };
+		AD0DFABD25B0723F00952DBF /* CertificateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateTests.swift; sourceTree = "<group>"; };
 		AD1229DD25A8BA25002331FC /* BufferCursor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BufferCursor.swift; sourceTree = "<group>"; };
 		AD20638225AE5935006BC8A2 /* ASN1Codable.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ASN1Codable.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		AD51C1F825B094F9003A3D18 /* isrgrootx1.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = isrgrootx1.pem; sourceTree = "<group>"; };
+		AD51C20025B0953E003A3D18 /* isrgrootx1.der */ = {isa = PBXFileReference; lastKnownFileType = file; path = isrgrootx1.der; sourceTree = "<group>"; };
+		AD51C21725B0A340003A3D18 /* BInt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BInt.swift; sourceTree = "<group>"; };
 		AD6F98B125A35BAC00AD06F4 /* Data+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Extension.swift"; sourceTree = "<group>"; };
 		AD6F98B525A3731000AD06F4 /* CertificationRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificationRequest.swift; sourceTree = "<group>"; };
 		AD6F98B925A374BA00AD06F4 /* DistinguishedName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistinguishedName.swift; sourceTree = "<group>"; };
@@ -140,6 +156,7 @@
 				AD03F50C25A3474800405E26 /* DERTagStrategy.swift */,
 				AD03F4DB25A2AB2A00405E26 /* Info.plist */,
 				AD03F4FC25A2AD7E00405E26 /* OID.swift */,
+				AD51C21725B0A340003A3D18 /* BInt.swift */,
 				AD6F98BD25A37A3900AD06F4 /* X501 */,
 				AD03F4FB25A2AD6400405E26 /* X509 */,
 			);
@@ -161,6 +178,7 @@
 		AD03F4FB25A2AD6400405E26 /* X509 */ = {
 			isa = PBXGroup;
 			children = (
+				AD0DFAB825B071EA00952DBF /* Certificate.swift */,
 				AD6F98B525A3731000AD06F4 /* CertificationRequest.swift */,
 				ADAFECE925A49B4900CC5D6C /* PEMTools.swift */,
 			);
@@ -180,9 +198,14 @@
 		AD9E2B9625A383BF001B27DC /* X509 */ = {
 			isa = PBXGroup;
 			children = (
+				AD51C20025B0953E003A3D18 /* isrgrootx1.der */,
+				AD51C1F825B094F9003A3D18 /* isrgrootx1.pem */,
+				AD0DFAA825AFBEF000952DBF /* 1024b-rsa-example-cert.der */,
+				AD0DFAB025B0712800952DBF /* 1024b-rsa-example-cert.pem */,
+				AD0DFABD25B0723F00952DBF /* CertificateTests.swift */,
+				AD9E2B9725A383E3001B27DC /* CertificationRequestTests.swift */,
 				AD8E5F1925A4F0F500E62FD6 /* test.expected.csr */,
 				AD9E2B9D25A38FEC001B27DC /* test.private.key */,
-				AD9E2B9725A383E3001B27DC /* CertificationRequestTests.swift */,
 			);
 			path = X509;
 			sourceTree = "<group>";
@@ -316,7 +339,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AD0DFAA925AFBEF000952DBF /* 1024b-rsa-example-cert.der in Resources */,
 				AD9E2BA125A39102001B27DC /* test.private.key in Resources */,
+				AD51C1F925B094F9003A3D18 /* isrgrootx1.pem in Resources */,
+				AD51C20125B0953E003A3D18 /* isrgrootx1.der in Resources */,
+				AD0DFAB125B0712800952DBF /* 1024b-rsa-example-cert.pem in Resources */,
 				AD8E5F1D25A4F12000E62FD6 /* test.expected.csr in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -335,6 +362,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AD51C22225B0A36B003A3D18 /* BInt.swift in Sources */,
+				AD51C1F125B07486003A3D18 /* Certificate.swift in Sources */,
 				AD6F98BF25A37C3700AD06F4 /* Attribute.swift in Sources */,
 				AD03F50925A3454000405E26 /* DERCollection.swift in Sources */,
 				AD8E5F2125A4F1CA00E62FD6 /* DERDecoder.swift in Sources */,
@@ -358,6 +387,7 @@
 			files = (
 				AD9E2B9825A383E3001B27DC /* CertificationRequestTests.swift in Sources */,
 				AD03F51325A34FEF00405E26 /* DEREncoderTests.swift in Sources */,
+				AD0DFABE25B0723F00952DBF /* CertificateTests.swift in Sources */,
 				AD8E5F2525A509B100E62FD6 /* DERDecoderTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -366,6 +396,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AD51C22625B0A375003A3D18 /* BInt.swift in Sources */,
+				AD51C22725B0A375003A3D18 /* Certificate.swift in Sources */,
 				AD2063C125AE5B81006BC8A2 /* BufferCursor.swift in Sources */,
 				AD2063C225AE5B81006BC8A2 /* DERCollection.swift in Sources */,
 				AD2063C325AE5B81006BC8A2 /* DERDecoder.swift in Sources */,

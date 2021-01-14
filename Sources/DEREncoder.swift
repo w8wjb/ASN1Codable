@@ -770,6 +770,15 @@ fileprivate class _DERBoxingContainer {
         return DERPrimitive(tag: tag(for: value), value: data)
     }
     
+    func box(_ value: BInt, forKey key: CodingKey? = nil) throws -> DERElement {
+        var data = Data()
+        for limb in value.limbs.reversed() {
+            let bytes = toSmallestByteArray(endian: limb.bigEndian, count: MemoryLayout<UInt64>.size)
+            data.append(contentsOf: bytes)
+        }
+        return DERPrimitive(tag: tag(for: value), value: data)
+    }
+    
     func box(_ value: Date, forKey key: CodingKey? = nil) -> DERElement {
 
         let dateFormatter = DateFormatter()
@@ -817,6 +826,8 @@ fileprivate class _DERBoxingContainer {
             return box(value as! Float)
         case is Double:
             return box(value as! Double)
+        case is BInt:
+            return try box(value as! BInt)
         default:
             
             let tag = self.tag(for: value)

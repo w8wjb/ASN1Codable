@@ -592,7 +592,7 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
             throw DecodingError.valueNotFound(UInt8.self, DecodingError.Context(codingPath: codingPath, debugDescription: "Could not read the length byte"))
         }
         
-        if lengthByte & 0x80 != 0 {
+        if lengthByte == 0x80 {
             lengthType = .indefinite
             cursor.next() // Consume the length byte
             end = cursor.buffer.endIndex
@@ -1312,6 +1312,24 @@ fileprivate class _DERUnboxingContainer {
         return type.init(bigEndian: bigEndian)
     }
     
+    func unbox(_ type: BInt.Type, forKey key: CodingKey? = nil) throws -> BInt {
+        let expectedTag = decoder.tagStrategy.tag(forType: type, atPath: codingPath)
+        try assertNextTag(is: expectedTag, expectedType: type)
+
+        let bigIntBytes = try readNextPrimitiveBytes()
+                
+        let strideSize = MemoryLayout<UInt64>.size
+        
+        let limbs = try stride(from: bigIntBytes.endIndex, to: bigIntBytes.startIndex, by: -strideSize).map { (end: Int) -> Limb in
+            let start = max(end.advanced(by: -strideSize), bigIntBytes.startIndex)
+            let limbBytes = [UInt8](bigIntBytes[start..<end])
+            let signed = try unbox(Int64.self, from: limbBytes)
+            return UInt64(bitPattern: signed)
+        }
+        
+        return BInt(limbs: limbs)
+    }
+    
     func unbox(_ type: Double.Type, forKey key: CodingKey? = nil) throws -> Double {
         let expectedTag = decoder.tagStrategy.tag(forType: type, atPath: codingPath)
         try assertNextTag(is: expectedTag, expectedType: type)
@@ -1388,11 +1406,6 @@ fileprivate class _DERUnboxingContainer {
         
         
         let identifier = identifiers.compactMap(String.init).joined(separator: ".")
-        
-        if let oid = OID.knownOIDs[identifier] {
-            return oid
-        }
-        
         return OID(oid: identifier)
     }
     
@@ -1413,8 +1426,12 @@ fileprivate class _DERUnboxingContainer {
     }
     
     func unbox(_ type: Data.Type, forKey key: CodingKey? = nil) throws -> Data {
+        
+        let tag = try cursor.readNextTag()
         let expectedTag = decoder.tagStrategy.tag(forType: type, atPath: codingPath)
-        try assertNextTag(is: expectedTag, expectedType: type)
+        guard tag == expectedTag || tag == .BIT_STRING || tag == .OCTET_STRING else {
+            throw DecodingError.typeMismatch(Data.self, DecodingError.Context(codingPath: codingPath, debugDescription: "Unexpected tag \(tag)"))
+        }
 
         var data = try readNextPrimitiveBytes()
         
@@ -1475,6 +1492,8 @@ fileprivate class _DERUnboxingContainer {
             return try unbox(Data.self) as! T
         } else if type == Date.self {
             return try unbox(Date.self) as! T
+        } else if type == BInt.self {
+            return try unbox(BInt.self) as! T
         } else if let stringKeyedDictType = type as? _DERStringDictionaryDecodableMarker.Type {
             return try unbox(stringKeyedDictType)
         }

@@ -8,8 +8,7 @@
 import Foundation
 
 public struct OID : Codable, CustomStringConvertible, Equatable, Hashable {
-    public static var knownOIDs = [String:OID]()
-    
+
     public static func == (lhs: OID, rhs: OID) -> Bool {
         return lhs.oid == rhs.oid
     }
@@ -50,26 +49,15 @@ public struct OID : Codable, CustomStringConvertible, Equatable, Hashable {
         self.shortName = shortName ?? ""
         self.longName = longName ?? shortName ?? ""
         self.comment = comment
-        if OID.knownOIDs[oid] == nil {
-            OID.knownOIDs[oid] = self
-        }
     }
     
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let decoded = try container.decode(OID.self)
         self.oid = decoded.oid
-        
-        // Check to see if the OID is known as the encoded version of the ObjectIdentifier may not carry the short and long names
-        if let knownOID = OID.knownOIDs[decoded.oid] {
-            self.shortName = knownOID.shortName
-            self.longName = knownOID.longName
-            self.comment = knownOID.comment
-        } else {
-            self.shortName = decoded.shortName
-            self.longName = decoded.longName
-            self.comment = decoded.comment
-        }
+        self.shortName = decoded.shortName
+        self.longName = decoded.longName
+        self.comment = decoded.comment
         
     }
     

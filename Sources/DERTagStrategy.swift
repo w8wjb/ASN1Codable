@@ -86,6 +86,8 @@ open class DefaultDERTagStrategy: DERTagStrategy {
             return .INTEGER
         case is UInt64:
             return .INTEGER
+        case is BInt:
+            return .INTEGER
         case is Float:
             return .REAL
         case is Double:
@@ -145,6 +147,8 @@ open class DefaultDERTagStrategy: DERTagStrategy {
         case is UInt32.Type:
             return .INTEGER
         case is UInt64.Type:
+            return .INTEGER
+        case is BInt.Type:
             return .INTEGER
         case is Float.Type:
             return .REAL

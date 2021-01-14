@@ -107,6 +107,14 @@ class DEREncoderTests: XCTestCase {
 
     }
     
+    func testEncodeBInt() throws {
+        
+        let serial = BInt("172886928669790476064670243504169061120")!
+        let encoded = try encoder.encode(serial)
+        XCTAssertEqual("0211008210cfb0d240e3594463e0bb63828b00", encoded.hexEncodedString())
+
+    }
+    
     func testEncodeReal() throws {
         var encoded = try encoder.encode(Float.greatestFiniteMagnitude)
         XCTAssertEqual("0906806800ffffff", encoded.hexEncodedString())
