@@ -748,9 +748,17 @@ fileprivate class _DERBoxingContainer {
     }
     
     func box(_ value: Data, forKey key: CodingKey? = nil) -> DERElement {
-        var bitstring = Data([0x00])
-        bitstring.append(value)
-        let primitive = DERPrimitive(tag: tag(for: value), value: bitstring)
+        let newTag = tag(for: value)
+        
+        let primitive: DERPrimitive
+        if newTag == .BIT_STRING {
+            var bitstring = Data([0x00])
+            bitstring.append(value)
+            primitive = DERPrimitive(tag: newTag, value: bitstring)
+        } else {
+            primitive = DERPrimitive(tag: newTag, value: value)
+        }
+        
         return primitive
     }
     
@@ -773,6 +781,10 @@ fileprivate class _DERBoxingContainer {
     func box(_ value: BInt, forKey key: CodingKey? = nil) throws -> DERElement {
         var data = Data()
         for limb in value.limbs.reversed() {
+            if limb == 0 {
+                continue
+            }
+            
             let bytes = toSmallestByteArray(endian: limb.bigEndian, count: MemoryLayout<UInt64>.size)
             data.append(contentsOf: bytes)
         }

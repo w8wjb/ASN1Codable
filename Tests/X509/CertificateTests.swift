@@ -44,12 +44,27 @@ class CertificateTests: XCTestCase {
         XCTAssertEqual(3, cert.tbsCertificate.extensions!.count)
         
         for ext in cert.tbsCertificate.extensions! {
-            print(ext.id.description)
+            print(ext.value.hexEncodedString())
         }
         
         XCTAssertEqual(SecKeyAlgorithm.rsaSignatureMessagePKCS1v15SHA256, cert.signatureAlgorithm!)
-        print(cert)
+        
 
+    }
+    
+    func testEncodeCertificateLetsEncryptRoot() throws {
+        
+        let certPath = Bundle(for: CertificationRequestTests.self).path(forResource: "isrgrootx1", ofType: "der")!
+        let certData = try Data(contentsOf: URL(fileURLWithPath: certPath))
+        print(certData.hexEncodedString())
+        
+        let decoder = DERDecoder()
+        let inputCert = try decoder.decode(Certificate.self, from: certData)
+
+        let encoder = DEREncoder()
+        let encoded = try encoder.encode(inputCert)
+
+        print(encoded.hexEncodedString())
     }
 
 }

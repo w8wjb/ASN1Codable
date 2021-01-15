@@ -1320,11 +1320,18 @@ fileprivate class _DERUnboxingContainer {
                 
         let strideSize = MemoryLayout<UInt64>.size
         
-        let limbs = try stride(from: bigIntBytes.endIndex, to: bigIntBytes.startIndex, by: -strideSize).map { (end: Int) -> Limb in
+        let limbs = try stride(from: bigIntBytes.endIndex, to: bigIntBytes.startIndex, by: -strideSize).compactMap { (end: Int) -> Limb? in
             let start = max(end.advanced(by: -strideSize), bigIntBytes.startIndex)
             let limbBytes = [UInt8](bigIntBytes[start..<end])
             let signed = try unbox(Int64.self, from: limbBytes)
+            if signed == 0 {
+                return nil
+            }
             return UInt64(bitPattern: signed)
+        }
+        
+        if limbs.isEmpty {
+            return BInt.zero
         }
         
         return BInt(limbs: limbs)
@@ -1435,15 +1442,18 @@ fileprivate class _DERUnboxingContainer {
 
         var data = try readNextPrimitiveBytes()
         
-        let unusedBytes: UInt8 = data.removeFirst()
-
-        if data.isEmpty {
-            return Data()
-        }
-        
-        if unusedBytes > 0 {
-            let mask: UInt8 = 0xFF << unusedBytes
-            data[data.endIndex-1] &= mask
+        if tag == .BIT_STRING {
+            
+            let unusedBytes: UInt8 = data.removeFirst()
+            
+            if data.isEmpty {
+                return Data()
+            }
+            
+            if unusedBytes > 0 {
+                let mask: UInt8 = 0xFF << unusedBytes
+                data[data.endIndex-1] &= mask
+            }
         }
         
         return Data(data)

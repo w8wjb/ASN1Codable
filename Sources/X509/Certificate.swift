@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Certificate : Decodable {
+public struct Certificate : Codable {
     
     public var tbsCertificate: TBSCertificate
     public var signatureAlgorithm: SecKeyAlgorithm?
@@ -61,33 +61,51 @@ public struct Certificate : Decodable {
 
     }
     
-//    public func verify() throws -> Bool {
-//
-//        guard let signatureAlgorithm = self.signatureAlgorithm else {
-//            throw NSError(domain: "Security", code: Int(errSecInvalidAlgorithm), userInfo: nil)
-//        }
-//
-//        guard let signatureData = self.signature else {
-//            throw NSError(domain: "Security", code: Int(errSecInvalidSignature), userInfo: nil)
-//        }
-//
-//        let encoder = DEREncoder()
-//        let tbsData = try encoder.encode(tbsCertificate)
-//
-//        let publicKey = tbsCertificate.publicKey
-//
-//        var error: Unmanaged<CFError>?
-//        let result = SecKeyVerifySignature(publicKey, signatureAlgorithm, criData as CFData, signatureData as CFData, &error)
-//        if let error = error {
-//            throw error.takeRetainedValue()
-//        }
-//
-//        return result
-//    }
+    public func encode(to encoder: Encoder) throws {
+        
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(tbsCertificate, forKey: .tbsCertificate)
+        
+        if let signature = self.signature, let signatureAlgorithm = self.signatureAlgorithm {
+
+            var algorithmContainer = container.nestedUnkeyedContainer(forKey: .signatureAlgorithm)
+            
+            switch signatureAlgorithm {
+            case .rsaSignatureMessagePKCS1v15SHA1:
+                try algorithmContainer.encode(OID.sha1WithRSAEncryption)
+            case .rsaSignatureMessagePKCS1v15SHA224:
+                try algorithmContainer.encode(OID.sha224WithRSAEncryption)
+            case .rsaSignatureMessagePKCS1v15SHA256:
+                try algorithmContainer.encode(OID.sha256WithRSAEncryption)
+            case .rsaSignatureMessagePKCS1v15SHA384:
+                try algorithmContainer.encode(OID.sha384WithRSAEncryption)
+            case .rsaSignatureMessagePKCS1v15SHA512:
+                try algorithmContainer.encode(OID.sha512WithRSAEncryption)
+            case .ecdsaSignatureMessageX962SHA1:
+                try algorithmContainer.encode(OID.ecdsa_with_SHA1)
+            case .ecdsaSignatureMessageX962SHA224:
+                try algorithmContainer.encode(OID.ecdsa_with_SHA224)
+            case .ecdsaSignatureMessageX962SHA256:
+                try algorithmContainer.encode(OID.ecdsa_with_SHA256)
+            case .ecdsaSignatureMessageX962SHA384:
+                try algorithmContainer.encode(OID.ecdsa_with_SHA384)
+            case .ecdsaSignatureMessageX962SHA512:
+                try algorithmContainer.encode(OID.ecdsa_with_SHA512)
+            default:
+                throw EncodingError.invalidValue(signatureAlgorithm,
+                                                 EncodingError.Context(codingPath: [], debugDescription: "Unsupported signing algorithm"))
+
+            }
+            try algorithmContainer.encodeNil()
+            
+            try container.encode(signature, forKey: .signature)
+            
+        }
+    }
 }
 
 
-public struct TBSCertificate : Decodable, DERTagAware {
+public struct TBSCertificate : Codable, DERTagAware {
     
     public static var tag: DERTagOptions? = nil
     
@@ -114,7 +132,20 @@ public struct TBSCertificate : Decodable, DERTagAware {
         }
     }
     
-    public struct Extension: Decodable {
+    public struct Extension: Codable, DERTagAware {
+        public static var tag: DERTagOptions? = nil
+        public static var childTagStrategy: DERTagStrategy? = TagStrategy()
+        
+        class TagStrategy : DefaultDERTagStrategy {
+            override func tag(forValue value: Encodable, atPath codingPath: [CodingKey]) -> DERTagOptions {
+                if value is Data {
+                    return .OCTET_STRING
+                }
+                return super.tag(forValue: value, atPath: codingPath)
+            }
+        }
+        
+        
         let id: OID
         let critical: Bool
         let value: Data
@@ -130,6 +161,15 @@ public struct TBSCertificate : Decodable, DERTagAware {
             self.id = try container.decode(OID.self)
             self.critical = try container.decodeIfPresent(Bool.self) ?? false
             self.value = try container.decode(Data.self)
+        }
+        
+        public func encode(to encoder: Encoder) throws {
+            var container = encoder.unkeyedContainer()
+            try container.encode(id)
+            if critical {
+                try container.encode(critical)
+            }
+            try container.encode(value)
         }
         
     }
@@ -173,6 +213,52 @@ public struct TBSCertificate : Decodable, DERTagAware {
     
     
     class TagStrategy : DefaultDERTagStrategy {
+        
+        override func tag(forPath codingPath: [CodingKey]) -> DERTagOptions {
+            if let lastKey = codingPath.last as? CodingKeys {
+                switch lastKey {
+                case .version:
+                    // version [0] EXPLICIT Version DEFAULT v1,
+                    return DERTagOptions.contextSpecific(0)
+                case .issuerUniqueID:
+                    // issuerUniqueID [1] IMPLICIT UniqueIdentifier OPTIONAL,
+                    return DERTagOptions.contextSpecific(1)
+                case .subjectUniqueID:
+                    // subjectUniqueID [2] IMPLICIT UniqueIdentifier OPTIONAL,
+                    return DERTagOptions.contextSpecific(2)
+                case .extensions:
+                    // extensions [3] EXPLICIT Extensions OPTIONAL
+                    return DERTagOptions.contextSpecific(3)
+                default:
+                    break
+                }
+            }
+            return super.tag(forPath: codingPath)
+        }
+        
+        override func tag(forValue value: Encodable, atPath codingPath: [CodingKey]) -> DERTagOptions {
+            
+            if let lastKey = codingPath.last as? CodingKeys {
+                switch lastKey {
+                case .version:
+                    // version [0] EXPLICIT Version DEFAULT v1,
+                    return DERTagOptions.contextSpecific(0)
+                case .issuerUniqueID:
+                    // issuerUniqueID [1] IMPLICIT UniqueIdentifier OPTIONAL,
+                    return DERTagOptions.contextSpecific(1)
+                case .subjectUniqueID:
+                    // subjectUniqueID [2] IMPLICIT UniqueIdentifier OPTIONAL,
+                    return DERTagOptions.contextSpecific(2)
+                case .extensions:
+                    // extensions [3] EXPLICIT Extensions OPTIONAL
+                    return DERTagOptions.contextSpecific(3)
+                default:
+                    break
+                }
+            }
+
+            return super.tag(forValue: value, atPath: codingPath)
+        }
         
         override func tag(forType type: Decodable.Type, atPath codingPath: [CodingKey]) -> DERTagOptions {
             
@@ -300,18 +386,109 @@ public struct TBSCertificate : Decodable, DERTagAware {
                 do {
                     var extensionsContainer = try container.nestedUnkeyedContainer(forKey: .extensions)
                     self.extensions = try extensionsContainer.decode([Extension].self)
-                    
                 } catch is DecodingError {
                     
                 }
-                
-                
             }
-            
         }
-        
     }
     
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        if version > .v1 {
+            try container.encode(version, forKey: .version)
+        }
+        try container.encode(serialNumber, forKey: .serialNumber)
+        
+        var signatureAlgorithmContainer = container.nestedUnkeyedContainer(forKey: .signatureAlgorithm)
+        
+        switch signatureAlgorithm {
+        case .rsaSignatureMessagePKCS1v15SHA1:
+            try signatureAlgorithmContainer.encode(OID.sha1WithRSAEncryption)
+        case .rsaSignatureMessagePKCS1v15SHA224:
+            try signatureAlgorithmContainer.encode(OID.sha224WithRSAEncryption)
+        case .rsaSignatureMessagePKCS1v15SHA256:
+            try signatureAlgorithmContainer.encode(OID.sha256WithRSAEncryption)
+        case .rsaSignatureMessagePKCS1v15SHA384:
+            try signatureAlgorithmContainer.encode(OID.sha384WithRSAEncryption)
+        case .rsaSignatureMessagePKCS1v15SHA512:
+            try signatureAlgorithmContainer.encode(OID.sha512WithRSAEncryption)
+        case .ecdsaSignatureMessageX962SHA1:
+            try signatureAlgorithmContainer.encode(OID.ecdsa_with_SHA1)
+        case .ecdsaSignatureMessageX962SHA224:
+            try signatureAlgorithmContainer.encode(OID.ecdsa_with_SHA224)
+        case .ecdsaSignatureMessageX962SHA256:
+            try signatureAlgorithmContainer.encode(OID.ecdsa_with_SHA256)
+        case .ecdsaSignatureMessageX962SHA384:
+            try signatureAlgorithmContainer.encode(OID.ecdsa_with_SHA384)
+        case .ecdsaSignatureMessageX962SHA512:
+            try signatureAlgorithmContainer.encode(OID.ecdsa_with_SHA512)
+        default:
+            throw EncodingError.invalidValue(signatureAlgorithm,
+                                             EncodingError.Context(codingPath: [], debugDescription: "Unsupported signing algorithm"))
+
+        }
+        try signatureAlgorithmContainer.encodeNil()
+        
+        try container.encode(issuer, forKey: .issuer)
+        
+        var validityContainer = container.nestedUnkeyedContainer(forKey: .validity)
+        try validityContainer.encode(notBefore)
+        try validityContainer.encode(notAfter)
+
+
+        try container.encode(subject, forKey: .subject)
+        
+        let attrs = SecKeyCopyAttributes(publicKey) as! [CFString:Any]
+        let keyType = attrs[kSecAttrKeyType] as! CFString
+
+        var subjectPKInfoContainer = container.nestedContainer(keyedBy: CodingKeys.self, forKey: .subjectPublicKeyInfo)
+
+        var algorithmContainer = subjectPKInfoContainer.nestedUnkeyedContainer(forKey: .algorithm)
+        
+        switch keyType {
+        case kSecAttrKeyTypeRSA:
+            try algorithmContainer.encode(OID.rsaEncryption)
+        case kSecAttrKeyTypeECSECPrimeRandom, kSecAttrKeyTypeEC:
+            try algorithmContainer.encode(OID.id_ecPublicKey)
+        default:
+            throw EncodingError.invalidValue(keyType,
+                                             EncodingError.Context(codingPath: [], debugDescription: "Unsupported key algorithm"))
+        }
+        try algorithmContainer.encodeNil()
+
+        
+        var error: Unmanaged<CFError>?
+        guard let keyData = SecKeyCopyExternalRepresentation(publicKey, &error) as Data? else {
+            throw EncodingError.invalidValue(publicKey,
+                                             EncodingError.Context(codingPath: [], debugDescription: "Could not encode public key data"))
+
+        }
+        if let error = error {
+            throw error.takeRetainedValue()
+        }
+
+        try subjectPKInfoContainer.encode(keyData, forKey: .subjectPublicKey)
+
+        if self.version >= .v2 {
+        
+            if let issuerUniqueIdentifier = self.issuerUniqueIdentifier {
+                try container.encode(issuerUniqueIdentifier, forKey: .issuerUniqueID)
+            }
+            
+            if let subjectUniqueIdentifier = self.subjectUniqueIdentifier {
+                try container.encode(subjectUniqueIdentifier, forKey: .subjectUniqueID)
+            }
+            
+            if self.version >= .v3 {
+                if let extensions = self.extensions {
+                    var extensionsContainer = container.nestedUnkeyedContainer(forKey: .extensions)
+                    try extensionsContainer.encode(extensions)
+                }
+            }
+        }
+    }
     
 
 }
