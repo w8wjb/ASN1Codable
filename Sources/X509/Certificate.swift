@@ -102,6 +102,31 @@ public struct Certificate : Codable {
             
         }
     }
+    
+    public func verify() throws -> Bool {
+        
+        guard let signatureAlgorithm = self.signatureAlgorithm else {
+            throw NSError(domain: "Security", code: Int(errSecInvalidAlgorithm), userInfo: nil)
+        }
+        
+        guard let signatureData = self.signature else {
+            throw NSError(domain: "Security", code: Int(errSecInvalidSignature), userInfo: nil)
+        }
+        
+        let encoder = DEREncoder()
+        let tbsCertData = try encoder.encode(tbsCertificate)
+        
+        let publicKey = tbsCertificate.publicKey
+        
+        var error: Unmanaged<CFError>?
+        let result = SecKeyVerifySignature(publicKey, signatureAlgorithm, tbsCertData as CFData, signatureData as CFData, &error)
+        if let error = error {
+            throw error.takeRetainedValue()
+        }
+
+        return result
+    }
+    
 }
 
 

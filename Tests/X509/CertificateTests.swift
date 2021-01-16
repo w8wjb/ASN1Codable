@@ -56,15 +56,18 @@ class CertificateTests: XCTestCase {
         
         let certPath = Bundle(for: CertificationRequestTests.self).path(forResource: "isrgrootx1", ofType: "der")!
         let certData = try Data(contentsOf: URL(fileURLWithPath: certPath))
-        print(certData.hexEncodedString())
+        let hexCertData = certData.hexEncodedString()
         
         let decoder = DERDecoder()
         let inputCert = try decoder.decode(Certificate.self, from: certData)
 
         let encoder = DEREncoder()
         let encoded = try encoder.encode(inputCert)
-
-        print(encoded.hexEncodedString())
+        let hexEncoded = encoded.hexEncodedString()
+        
+        XCTAssertEqual(hexCertData, hexEncoded)
+        
+        XCTAssertTrue(try inputCert.verify())
     }
 
 }

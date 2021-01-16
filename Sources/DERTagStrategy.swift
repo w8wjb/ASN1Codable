@@ -34,7 +34,7 @@ extension Set : _DERSetMarker where Element: Decodable { }
 
 open class DefaultDERTagStrategy: DERTagStrategy {
     
-    static let printableStringCharset = CharacterSet(charactersIn: "ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz0123456789 '()+,-./:=?")
+    static let printableStringCharset = CharacterSet(charactersIn: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 '()+,-./:=?")
     
     public init() {
         
