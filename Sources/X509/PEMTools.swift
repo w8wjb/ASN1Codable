@@ -22,5 +22,19 @@ public class PEMTools {
         
         return pem
     }
+    å
+    public static func unwrap<T: Decodable>(_ type: T.Type, pem: String) throws -> T {
+        
+        let b64 = pem.replacingOccurrences(of: "^-----BEGIN (.*)-----", with: "", options: .regularExpression)
+            .replacingOccurrences(of: "-----END (.*)-----$", with: "", options: .regularExpression)
+            .replacingOccurrences(of: "\r", with: "")
+            .replacingOccurrences(of: "\n", with: "")
+        
+        guard let data = Data(base64Encoded: b64) else {
+            throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: [], debugDescription: "Could not decode Base64 data"))
+        }
+        let decoder = DERDecoder()
+        return try decoder.decode(type, from: data)
+    }
     
 }

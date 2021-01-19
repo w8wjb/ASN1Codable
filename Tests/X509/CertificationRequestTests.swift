@@ -91,6 +91,9 @@ class CertificationRequestTests: XCTestCase {
         let expected = try String(contentsOf: URL(fileURLWithPath: path))
         XCTAssertEqual(expected, pem)
 
+        
+        let unwrappedCsr = try PEMTools.unwrap(CertificationRequest.self, pem: pem)
+        XCTAssertEqual(csr.signature, unwrappedCsr.signature)
     }
     
     func testDecodeCertificationRequestWithAttributes() throws {
