@@ -11,9 +11,33 @@ import XCTest
 
 
 class CertificateTests: XCTestCase {
+    
+    
+    var privateKey: SecKey!
+    var publicKey: SecKey!
 
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+        
+        let path = Bundle(for: CertificateTests.self).path(forResource: "test.private", ofType: "key")!
+        let keyData = try Data(contentsOf: URL(fileURLWithPath: path))
+        
+        let attributes: [CFString : Any] = [
+            kSecAttrKeyType: kSecAttrKeyTypeRSA,
+            kSecAttrKeyClass: kSecAttrKeyClassPrivate,
+            kSecAttrKeySizeInBits: 1024
+        ]
+        
+        
+        var error: Unmanaged<CFError>?
+        privateKey = SecKeyCreateWithData(keyData as CFData, attributes as CFDictionary, &error)
+        if let error = error {
+            throw error.takeRetainedValue()
+        }
+        assert(privateKey != nil)
+        
+        publicKey = SecKeyCopyPublicKey(privateKey)
+        assert(publicKey != nil)
+
     }
 
     override func tearDownWithError() throws {
@@ -70,4 +94,35 @@ class CertificateTests: XCTestCase {
         XCTAssertTrue(try inputCert.verify())
     }
 
+    
+    func testSelfSign() throws {
+        
+        let dn = DistinguishedName((.C, "US"),
+                                   (.L, "Orbit City"),
+                                   (.O, "Spacely Sprockets"))
+        
+        let tbs = TBSCertificate(serialNumber: BInt(1234),
+                                 issuer: dn,
+                                 notBefore: Date(),
+                                 notAfter: Date().addingTimeInterval(126227702), // 4 years from now
+                                 subject: dn,
+                                 publicKey: publicKey)
+        
+        var cert = Certificate(tbsCertificate: tbs)
+
+        
+        try cert.sign(privateKey: privateKey, algorithm: .rsaSignatureMessagePKCS1v15SHA1)
+
+        XCTAssertNotNil(cert.signatureAlgorithm)
+        XCTAssertNotNil(cert.signature)
+
+        XCTAssertTrue(try cert.verify())
+        
+        let pem = try PEMTools.wrap(cert)
+
+        XCTAssertTrue(pem.contains("-----END CERTIFICATE-----"))
+        
+        
+    }
+    
 }

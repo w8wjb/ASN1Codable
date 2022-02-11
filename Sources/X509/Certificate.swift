@@ -19,6 +19,10 @@ public struct Certificate : Codable {
         case signature = "signatureValue"
     }
     
+    public init(tbsCertificate: TBSCertificate) {
+        self.tbsCertificate = tbsCertificate
+    }
+    
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.tbsCertificate = try container.decode(TBSCertificate.self, forKey: .tbsCertificate)
@@ -101,6 +105,27 @@ public struct Certificate : Codable {
             try container.encode(signature, forKey: .signature)
             
         }
+    }
+    
+    public mutating func sign(privateKey: SecKey, algorithm: SecKeyAlgorithm) throws {
+        
+        signatureAlgorithm = algorithm
+        
+        guard SecKeyIsAlgorithmSupported(privateKey, .sign, algorithm) else {
+            throw NSError(domain: "Security", code: Int(errSecAlgorithmMismatch), userInfo: nil)
+        }
+        
+        
+        let encoder = DEREncoder()
+        
+        let criData = try encoder.encode(tbsCertificate)
+        
+        var error: Unmanaged<CFError>?
+        signature = SecKeyCreateSignature(privateKey, algorithm, criData as CFData, &error) as Data?
+        if let error = error {
+            throw error.takeRetainedValue()
+        }
+        
     }
     
     public func verify() throws -> Bool {
@@ -309,6 +334,24 @@ public struct TBSCertificate : Codable, DERTagAware {
             return super.tag(forType: type, atPath: codingPath)
         }
         
+    }
+    
+    public init(version: Version = .v1,
+                signatureAlgorithm: SecKeyAlgorithm = .rsaSignatureMessagePKCS1v15SHA1,
+                serialNumber: BInt,
+                issuer: DistinguishedName,
+                notBefore: Date,
+                notAfter: Date,
+                subject: DistinguishedName,
+                publicKey: SecKey) {
+        self.version = version
+        self.serialNumber = serialNumber
+        self.signatureAlgorithm = signatureAlgorithm
+        self.issuer = issuer
+        self.notBefore = notBefore
+        self.notAfter = notAfter
+        self.subject = subject
+        self.publicKey = publicKey
     }
     
     public init(from decoder: Decoder) throws {

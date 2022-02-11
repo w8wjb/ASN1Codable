@@ -198,12 +198,12 @@
 		AD9E2B9625A383BF001B27DC /* X509 */ = {
 			isa = PBXGroup;
 			children = (
-				AD51C20025B0953E003A3D18 /* isrgrootx1.der */,
-				AD51C1F825B094F9003A3D18 /* isrgrootx1.pem */,
 				AD0DFAA825AFBEF000952DBF /* 1024b-rsa-example-cert.der */,
 				AD0DFAB025B0712800952DBF /* 1024b-rsa-example-cert.pem */,
 				AD0DFABD25B0723F00952DBF /* CertificateTests.swift */,
 				AD9E2B9725A383E3001B27DC /* CertificationRequestTests.swift */,
+				AD51C20025B0953E003A3D18 /* isrgrootx1.der */,
+				AD51C1F825B094F9003A3D18 /* isrgrootx1.pem */,
 				AD8E5F1925A4F0F500E62FD6 /* test.expected.csr */,
 				AD9E2B9D25A38FEC001B27DC /* test.private.key */,
 			);

@@ -23,6 +23,20 @@ public class PEMTools {
         return pem
     }
     
+    public static func wrap(_ cert: Certificate) throws -> String {
+        
+        let encoder = DEREncoder()
+        
+        let derData = try encoder.encode(cert)
+        
+        var pem = derData.base64EncodedString(options: [.lineLength64Characters, .endLineWithLineFeed])
+                
+        pem.insert(contentsOf: "-----BEGIN CERTIFICATE-----\n", at: pem.startIndex)
+        pem.append("\n-----END CERTIFICATE-----")
+        
+        return pem
+    }
+    
     public static func unwrap<T: Decodable>(_ type: T.Type, pem: String) throws -> T {
         
         let b64 = pem.replacingOccurrences(of: "^-----BEGIN (.*)-----", with: "", options: .regularExpression)
