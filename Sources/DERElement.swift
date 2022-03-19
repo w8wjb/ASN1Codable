@@ -72,6 +72,7 @@ public struct DERTagOptions: OptionSet, CustomStringConvertible {
     static let SEQUENCE = DERTagOptions(rawValue: 0x30) // includes constructed bit
     static let SET = DERTagOptions(rawValue: 0x31) // includes constructed bit
     static let PrintableString = DERTagOptions(rawValue: 19)
+    static let TeletexString = DERTagOptions(rawValue: 20)
     static let IA5String = DERTagOptions(rawValue: 22)
     static let UTCTime = DERTagOptions(rawValue: 23)
     static let GeneralizedTime = DERTagOptions(rawValue: 24)

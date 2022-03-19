@@ -56,6 +56,56 @@ class CertificateTests: XCTestCase {
         XCTAssertEqual(SecKeyAlgorithm.rsaSignatureMessagePKCS1v15SHA1, cert.signatureAlgorithm)
     }
     
+    
+    func testDecodeInstalledCerts() throws {
+        
+        // Limit to only identities that are currently valid
+        let now = Date() as CFDate
+        
+        let query: [String: Any] = [kSecClass as String: kSecClassIdentity,
+                                    kSecMatchLimit as String: kSecMatchLimitAll,
+                                    kSecMatchValidOnDate as String: now,
+                                    kSecReturnAttributes as String: false,
+                                    kSecReturnRef as String: true,
+                                    kSecReturnData as String: true]
+        
+        var resultsRef: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &resultsRef)
+        
+        XCTAssert(status != errSecItemNotFound)
+        XCTAssert(status == errSecSuccess)
+        
+                
+        guard let results =  resultsRef as? [[String:Any]] else {
+            fatalError()
+        }
+        
+        print("Cert count \(results.count)")
+        
+        for result in results {
+            let secIdentity = result[kSecValueRef as String] as! SecIdentity
+            
+            var certificate: SecCertificate!
+            XCTAssert(SecIdentityCopyCertificate(secIdentity, &certificate) == noErr)
+            let data = SecCertificateCopyData(certificate) as Data
+            
+            let decoder = DERDecoder()
+            let cert = try decoder.decode(Certificate.self, from: data)
+            print(getName(type: .CN, from: cert.tbsCertificate.subject)!)
+        }
+        
+    }
+    
+    private func getName(type: OID, from dn: DistinguishedName) -> String? {
+        for name in dn.names {
+            if name.type == type {
+                return name.value
+            }
+        }
+        return nil
+    }
+
+    
     func testDecodeCertificateLetsEncryptRoot() throws {
 
         let certPath = Bundle(for: CertificationRequestTests.self).path(forResource: "isrgrootx1", ofType: "der")!

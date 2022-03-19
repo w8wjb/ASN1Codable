@@ -1262,6 +1262,10 @@ fileprivate class _DERUnboxingContainer {
             
         } else if tag == .UTF8String {
             return String(bytes: try readNextPrimitiveBytes(), encoding: .utf8)!
+            
+        } else if tag == .TeletexString {
+            // Following OpenSSL's lead on this, even though they admit is broken
+            return String(bytes: try readNextPrimitiveBytes(), encoding: .isoLatin1)!
         }
         
         throw DecodingError.typeMismatch(String.self, DecodingError.Context(codingPath: codingPath, debugDescription: "Unknown tag \(tag)"))
