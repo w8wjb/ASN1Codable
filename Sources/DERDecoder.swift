@@ -642,7 +642,7 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
             throw DecodingError.valueNotFound(Any.self, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
         }
         
-        let decoded = try! unboxNil()
+        let decoded = try unboxNil()
         currentIndex += 1
         return decoded
     }
@@ -1009,7 +1009,7 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
 fileprivate class DERSingleValueDecodingContainer: _DERUnboxingContainer, SingleValueDecodingContainer {
     
     func decodeNil() -> Bool {
-        return try! unboxNil()
+        return (try? unboxNil()) ?? false
     }
 
     func decode(_ type: Bool.Type) throws -> Bool {
