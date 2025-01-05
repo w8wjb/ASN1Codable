@@ -1137,5 +1137,15 @@ public struct OID : Codable, CustomStringConvertible, Equatable, Hashable {
     
     public static let callsign = OID(oid: "1.3.6.1.4.1.12348.1.1", shortName: "callsign", longName: "callsign", comment: "Callsign for identification in Logbook of the World ")
     
+        
+    public static let knownOIDs: [String: OID] = {
+        
+        let toProcess: [OID] = [
+            .CN, .C, .L, .ST, .O, .OU,
+            .GN, .SN, .initials, .uid, .ORG, .DC, .mail, .UID
+        ]
+        
+        return Dictionary(uniqueKeysWithValues: toProcess.map({ ($0.oid, $0)}))
+    }()
     
 }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct DistinguishedName : Codable {
+public struct DistinguishedName : Codable, Equatable, Hashable, CustomStringConvertible {
 
     public typealias rdnTuple = (OID, String)
     
@@ -35,5 +35,13 @@ public struct DistinguishedName : Codable {
             try container.encode(name)
         }
     }
+    
+    public var description: String {
+        return names
+            .map { $0.description }
+            .joined(separator: ", ")
+    }
+    
+
     
 }

@@ -16,6 +16,16 @@
 		AD03F50925A3454000405E26 /* DERCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD03F50825A3454000405E26 /* DERCollection.swift */; };
 		AD03F50D25A3474800405E26 /* DERTagStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD03F50C25A3474800405E26 /* DERTagStrategy.swift */; };
 		AD03F51325A34FEF00405E26 /* DEREncoderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD03F51225A34FEF00405E26 /* DEREncoderTests.swift */; };
+		AD0973852D2893700085D0B3 /* AppReceipt.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0973842D2893700085D0B3 /* AppReceipt.swift */; };
+		AD0973862D2893700085D0B3 /* AppReceipt.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0973842D2893700085D0B3 /* AppReceipt.swift */; };
+		AD0973882D2894B30085D0B3 /* IAPReceipt.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0973872D2894A30085D0B3 /* IAPReceipt.swift */; };
+		AD0973892D2894B30085D0B3 /* IAPReceipt.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0973872D2894A30085D0B3 /* IAPReceipt.swift */; };
+		AD09738C2D2895C10085D0B3 /* gb_receipt.der in Resources */ = {isa = PBXBuildFile; fileRef = AD09738B2D2895C00085D0B3 /* gb_receipt.der */; };
+		AD09738E2D28960E0085D0B3 /* AppReceiptTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD09738D2D28960E0085D0B3 /* AppReceiptTests.swift */; };
+		AD0973912D289A240085D0B3 /* PKCS7Container.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0973902D289A150085D0B3 /* PKCS7Container.swift */; };
+		AD0973922D289A240085D0B3 /* PKCS7Container.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0973902D289A150085D0B3 /* PKCS7Container.swift */; };
+		AD0973942D28A7ED0085D0B3 /* AlgorithmIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0973932D28A7E90085D0B3 /* AlgorithmIdentifier.swift */; };
+		AD0973952D28A7ED0085D0B3 /* AlgorithmIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0973932D28A7E90085D0B3 /* AlgorithmIdentifier.swift */; };
 		AD0DFAA925AFBEF000952DBF /* 1024b-rsa-example-cert.der in Resources */ = {isa = PBXBuildFile; fileRef = AD0DFAA825AFBEF000952DBF /* 1024b-rsa-example-cert.der */; };
 		AD0DFAB125B0712800952DBF /* 1024b-rsa-example-cert.pem in Resources */ = {isa = PBXBuildFile; fileRef = AD0DFAB025B0712800952DBF /* 1024b-rsa-example-cert.pem */; };
 		AD0DFABE25B0723F00952DBF /* CertificateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0DFABD25B0723F00952DBF /* CertificateTests.swift */; };
@@ -76,6 +86,12 @@
 		AD03F50825A3454000405E26 /* DERCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DERCollection.swift; sourceTree = "<group>"; };
 		AD03F50C25A3474800405E26 /* DERTagStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DERTagStrategy.swift; sourceTree = "<group>"; };
 		AD03F51225A34FEF00405E26 /* DEREncoderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DEREncoderTests.swift; sourceTree = "<group>"; };
+		AD0973842D2893700085D0B3 /* AppReceipt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppReceipt.swift; sourceTree = "<group>"; };
+		AD0973872D2894A30085D0B3 /* IAPReceipt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPReceipt.swift; sourceTree = "<group>"; };
+		AD09738B2D2895C00085D0B3 /* gb_receipt.der */ = {isa = PBXFileReference; lastKnownFileType = file; path = gb_receipt.der; sourceTree = "<group>"; };
+		AD09738D2D28960E0085D0B3 /* AppReceiptTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppReceiptTests.swift; sourceTree = "<group>"; };
+		AD0973902D289A150085D0B3 /* PKCS7Container.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PKCS7Container.swift; sourceTree = "<group>"; };
+		AD0973932D28A7E90085D0B3 /* AlgorithmIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlgorithmIdentifier.swift; sourceTree = "<group>"; };
 		AD0DFAA825AFBEF000952DBF /* 1024b-rsa-example-cert.der */ = {isa = PBXFileReference; lastKnownFileType = file; path = "1024b-rsa-example-cert.der"; sourceTree = "<group>"; };
 		AD0DFAB025B0712800952DBF /* 1024b-rsa-example-cert.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "1024b-rsa-example-cert.pem"; sourceTree = "<group>"; };
 		AD0DFAB825B071EA00952DBF /* Certificate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Certificate.swift; sourceTree = "<group>"; };
@@ -146,6 +162,8 @@
 		AD03F4D925A2AB2900405E26 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				AD09738F2D289A090085D0B3 /* PKCS7 */,
+				AD0973832D28930C0085D0B3 /* MAS */,
 				AD03F4DA25A2AB2A00405E26 /* ASN1Codable.h */,
 				AD51C21725B0A340003A3D18 /* BInt.swift */,
 				AD1229DD25A8BA25002331FC /* BufferCursor.swift */,
@@ -166,6 +184,7 @@
 		AD03F4E425A2AB2A00405E26 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				AD09738A2D2895A60085D0B3 /* MAS */,
 				AD9E2B9625A383BF001B27DC /* X509 */,
 				AD03F4E725A2AB2A00405E26 /* Info.plist */,
 				AD03F51225A34FEF00405E26 /* DEREncoderTests.swift */,
@@ -178,11 +197,38 @@
 		AD03F4FB25A2AD6400405E26 /* X509 */ = {
 			isa = PBXGroup;
 			children = (
+				AD0973932D28A7E90085D0B3 /* AlgorithmIdentifier.swift */,
 				AD0DFAB825B071EA00952DBF /* Certificate.swift */,
 				AD6F98B525A3731000AD06F4 /* CertificationRequest.swift */,
 				ADAFECE925A49B4900CC5D6C /* PEMTools.swift */,
 			);
 			path = X509;
+			sourceTree = "<group>";
+		};
+		AD0973832D28930C0085D0B3 /* MAS */ = {
+			isa = PBXGroup;
+			children = (
+				AD0973872D2894A30085D0B3 /* IAPReceipt.swift */,
+				AD0973842D2893700085D0B3 /* AppReceipt.swift */,
+			);
+			path = MAS;
+			sourceTree = "<group>";
+		};
+		AD09738A2D2895A60085D0B3 /* MAS */ = {
+			isa = PBXGroup;
+			children = (
+				AD09738B2D2895C00085D0B3 /* gb_receipt.der */,
+				AD09738D2D28960E0085D0B3 /* AppReceiptTests.swift */,
+			);
+			path = MAS;
+			sourceTree = "<group>";
+		};
+		AD09738F2D289A090085D0B3 /* PKCS7 */ = {
+			isa = PBXGroup;
+			children = (
+				AD0973902D289A150085D0B3 /* PKCS7Container.swift */,
+			);
+			path = PKCS7;
 			sourceTree = "<group>";
 		};
 		AD6F98BD25A37A3900AD06F4 /* X501 */ = {
@@ -339,6 +385,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AD09738C2D2895C10085D0B3 /* gb_receipt.der in Resources */,
 				AD0DFAA925AFBEF000952DBF /* 1024b-rsa-example-cert.der in Resources */,
 				AD9E2BA125A39102001B27DC /* test.private.key in Resources */,
 				AD51C1F925B094F9003A3D18 /* isrgrootx1.pem in Resources */,
@@ -362,6 +409,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AD0973852D2893700085D0B3 /* AppReceipt.swift in Sources */,
 				AD51C22225B0A36B003A3D18 /* BInt.swift in Sources */,
 				AD51C1F125B07486003A3D18 /* Certificate.swift in Sources */,
 				AD6F98BF25A37C3700AD06F4 /* Attribute.swift in Sources */,
@@ -371,9 +419,12 @@
 				AD6F98B225A35BAC00AD06F4 /* Data+Extension.swift in Sources */,
 				AD1229DE25A8BA25002331FC /* BufferCursor.swift in Sources */,
 				ADAFECEA25A49B4900CC5D6C /* PEMTools.swift in Sources */,
+				AD0973952D28A7ED0085D0B3 /* AlgorithmIdentifier.swift in Sources */,
 				AD6F98BA25A374BA00AD06F4 /* DistinguishedName.swift in Sources */,
+				AD0973882D2894B30085D0B3 /* IAPReceipt.swift in Sources */,
 				AD6F98B625A3731000AD06F4 /* CertificationRequest.swift in Sources */,
 				AD03F50D25A3474800405E26 /* DERTagStrategy.swift in Sources */,
+				AD0973912D289A240085D0B3 /* PKCS7Container.swift in Sources */,
 				AD03F50125A341E300405E26 /* DERElement.swift in Sources */,
 				AD03F50525A344BD00405E26 /* DERPrimitive.swift in Sources */,
 				AD03F4F825A2AC9600405E26 /* DEREncoder.swift in Sources */,
@@ -385,6 +436,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AD09738E2D28960E0085D0B3 /* AppReceiptTests.swift in Sources */,
 				AD9E2B9825A383E3001B27DC /* CertificationRequestTests.swift in Sources */,
 				AD03F51325A34FEF00405E26 /* DEREncoderTests.swift in Sources */,
 				AD0DFABE25B0723F00952DBF /* CertificateTests.swift in Sources */,
@@ -400,17 +452,21 @@
 				AD51C22725B0A375003A3D18 /* Certificate.swift in Sources */,
 				AD2063C125AE5B81006BC8A2 /* BufferCursor.swift in Sources */,
 				AD2063C225AE5B81006BC8A2 /* DERCollection.swift in Sources */,
+				AD0973922D289A240085D0B3 /* PKCS7Container.swift in Sources */,
 				AD2063C325AE5B81006BC8A2 /* DERDecoder.swift in Sources */,
 				AD2063C425AE5B81006BC8A2 /* DERElement.swift in Sources */,
 				AD2063C525AE5B81006BC8A2 /* DEREncoder.swift in Sources */,
 				AD2063C625AE5B82006BC8A2 /* DERPrimitive.swift in Sources */,
+				AD0973862D2893700085D0B3 /* AppReceipt.swift in Sources */,
 				AD2063C725AE5B82006BC8A2 /* DERTagStrategy.swift in Sources */,
 				AD2063C825AE5B82006BC8A2 /* OID.swift in Sources */,
 				AD2063C925AE5B82006BC8A2 /* Attribute.swift in Sources */,
 				AD2063CA25AE5B82006BC8A2 /* DistinguishedName.swift in Sources */,
 				AD2063CB25AE5B82006BC8A2 /* RelativeDistinguishedName.swift in Sources */,
+				AD0973942D28A7ED0085D0B3 /* AlgorithmIdentifier.swift in Sources */,
 				AD2063CC25AE5B82006BC8A2 /* CertificationRequest.swift in Sources */,
 				AD2063CD25AE5B82006BC8A2 /* PEMTools.swift in Sources */,
+				AD0973892D2894B30085D0B3 /* IAPReceipt.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

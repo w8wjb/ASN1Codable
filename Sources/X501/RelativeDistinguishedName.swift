@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct RelativeDistinguishedName : Codable, DERTagAware {
+public struct RelativeDistinguishedName : Codable, Equatable, Hashable, DERTagAware, CustomStringConvertible {
 
     public static var childTagStrategy: DERTagStrategy? = nil
     public static var tag: DERTagOptions? = .SET
@@ -33,5 +33,17 @@ public struct RelativeDistinguishedName : Codable, DERTagAware {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.unkeyedContainer()
         try container.encode([type:value])
+    }
+    
+    public var description: String {
+        if !type.shortName.isEmpty {
+            return "\(type.shortName)=\(value)"
+        }
+
+        if !type.longName.isEmpty {
+            return "\(type.longName)=\(value)"
+        }
+
+        return "\(type.oid)=\(value)"
     }
 }

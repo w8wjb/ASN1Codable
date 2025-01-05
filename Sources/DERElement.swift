@@ -112,7 +112,7 @@ public struct DERTagOptions: OptionSet, CustomStringConvertible {
         case .SEQUENCE:
             return "SEQUENCE"
         case .SET:
-            return "SEQUENCE"
+            return "SET"
         case .PrintableString:
             return "PrintableString"
         case .IA5String:
