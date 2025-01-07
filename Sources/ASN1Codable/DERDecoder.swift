@@ -1284,6 +1284,8 @@ fileprivate class _DERUnboxingContainer {
     }
     
     func unboxNil(forKey key: CodingKey? = nil) throws -> Bool {
+        let nextTag = try peekNextTag()
+        guard nextTag == .NULL else { return false }
         try assertNextTag(is: .NULL, expectedType: Void.self)
         let boolBytes = try readNextPrimitiveBytes()
         return boolBytes.isEmpty

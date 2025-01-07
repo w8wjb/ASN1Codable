@@ -6,12 +6,18 @@
 //
 
 import Foundation
+import Security
+import CommonCrypto
 
 public struct Certificate : Codable {
     
     public var tbsCertificate: TBSCertificate
     public var signatureAlgorithm: SecKeyAlgorithm?
     public var signature: Data?
+    
+    public var serialNumber: BInt {
+        tbsCertificate.serialNumber
+    }
 
     enum CodingKeys: String, CodingKey {
         case tbsCertificate = "tbsCertificate"
@@ -64,6 +70,7 @@ public struct Certificate : Codable {
         }
 
     }
+    
     
     public func encode(to encoder: Encoder) throws {
         
@@ -151,7 +158,11 @@ public struct Certificate : Codable {
 
         return result
     }
-    
+
+
+    func publicKeyHash() -> String? {
+        return tbsCertificate.publicKeyHash()
+    }
 }
 
 
@@ -238,6 +249,8 @@ public struct TBSCertificate : Codable, DERTagAware {
     
     public let subject: DistinguishedName
     
+    public var publicKeyData: Data
+    
     public var publicKey: SecKey
     
     public var issuerUniqueIdentifier: Data?
@@ -246,7 +259,7 @@ public struct TBSCertificate : Codable, DERTagAware {
     
     public var extensions: [Extension]?
     
-    enum CodingKeys: String, CodingKey {
+    private enum CodingKeys: String, CodingKey {
         case version = "version"
         case serialNumber = "serialNumber"
         case signatureAlgorithm = "signature"
@@ -262,7 +275,7 @@ public struct TBSCertificate : Codable, DERTagAware {
     }
     
     
-    class TagStrategy : DefaultDERTagStrategy {
+    internal class TagStrategy : DefaultDERTagStrategy {
         
         override func tag(forPath codingPath: [CodingKey]) -> DERTagOptions {
             if let lastKey = codingPath.last as? CodingKeys {
@@ -352,6 +365,14 @@ public struct TBSCertificate : Codable, DERTagAware {
         self.notAfter = notAfter
         self.subject = subject
         self.publicKey = publicKey
+        
+        var error: Unmanaged<CFError>?
+        if let keyData = SecKeyCopyExternalRepresentation(publicKey, &error) as Data? {
+            self.publicKeyData = keyData
+        } else {
+            self.publicKeyData = Data()
+        }
+        
     }
     
     public init(from decoder: Decoder) throws {
@@ -374,37 +395,13 @@ public struct TBSCertificate : Codable, DERTagAware {
         self.version = try container.decodeIfPresent(Version.self, forKey: .version) ?? .v1
         self.serialNumber = try container.decode(BInt.self, forKey: .serialNumber)
         
-        var signatureAlgorithmContainer = try container.nestedUnkeyedContainer(forKey: .signatureAlgorithm)
+        let algorithmIdentifier = try container.decode(AlgorithmIdentifier.self, forKey: .signatureAlgorithm)
         
-        let signatureAlgorithmOID = try signatureAlgorithmContainer.decode(OID.self)
-        
-        switch signatureAlgorithmOID {
-        case .sha1WithRSAEncryption:
-            signatureAlgorithm = .rsaSignatureMessagePKCS1v15SHA1
-        case .sha224WithRSAEncryption:
-            signatureAlgorithm = .rsaSignatureMessagePKCS1v15SHA224
-        case .sha256WithRSAEncryption:
-            signatureAlgorithm = .rsaSignatureMessagePKCS1v15SHA256
-        case .sha384WithRSAEncryption:
-            signatureAlgorithm = .rsaSignatureMessagePKCS1v15SHA384
-        case .sha512WithRSAEncryption:
-            signatureAlgorithm = .rsaSignatureMessagePKCS1v15SHA512
-        case .ecdsa_with_SHA1:
-            signatureAlgorithm = .ecdsaSignatureMessageX962SHA1
-        case .ecdsa_with_SHA224:
-            signatureAlgorithm = .ecdsaSignatureMessageX962SHA224
-        case .ecdsa_with_SHA256:
-            signatureAlgorithm = .ecdsaSignatureMessageX962SHA256
-        case .ecdsa_with_SHA384:
-            signatureAlgorithm = .ecdsaSignatureMessageX962SHA384
-        case .ecdsa_with_SHA512:
-            signatureAlgorithm = .ecdsaSignatureMessageX962SHA512
-        default:
-            throw DecodingError.typeMismatch(OID.self, DecodingError.Context(codingPath: signatureAlgorithmContainer.codingPath, debugDescription: "Unsupported encryption type: \(signatureAlgorithmOID)"))
+        guard let signatureAlgorithm = algorithmIdentifier.signatureAlgorithm() else {
+            throw DecodingError.typeMismatch(OID.self, DecodingError.Context(codingPath: container.codingPath, debugDescription: "Unsupported encryption type: \(algorithmIdentifier.identifier)"))
         }
         
-        let _ = try signatureAlgorithmContainer.decodeNil()
-        
+        self.signatureAlgorithm = signatureAlgorithm
         self.issuer = try container.decode(DistinguishedName.self, forKey: .issuer)
         
         var validityContainer = try container.nestedUnkeyedContainer(forKey: .validity)
@@ -419,7 +416,7 @@ public struct TBSCertificate : Codable, DERTagAware {
         var algorithmContainer = try subjectPKInfoContainer.nestedUnkeyedContainer(forKey: .algorithm)
         let algorithmOID = try algorithmContainer.decode(OID.self)
         let _ = try algorithmContainer.decodeNil()
-        let keyData = try subjectPKInfoContainer.decode(Data.self, forKey: .subjectPublicKey)
+        publicKeyData = try subjectPKInfoContainer.decode(Data.self, forKey: .subjectPublicKey)
         
         var attributes: [CFString : Any] = [
             kSecAttrKeyClass: kSecAttrKeyClassPublic
@@ -436,7 +433,7 @@ public struct TBSCertificate : Codable, DERTagAware {
         
         
         var error: Unmanaged<CFError>?
-        guard let publicKey = SecKeyCreateWithData(keyData as CFData, attributes as CFDictionary, &error) else {
+        guard let publicKey = SecKeyCreateWithData(publicKeyData as CFData, attributes as CFDictionary, &error) else {
             throw DecodingError.dataCorruptedError(forKey: CodingKeys.subjectPublicKey, in: subjectPKInfoContainer, debugDescription: "Could not read public key")
         }
         if let error = error {
@@ -558,5 +555,17 @@ public struct TBSCertificate : Codable, DERTagAware {
         }
     }
     
+    
+    func publicKeyHash() -> String? {
+        // Create a buffer to hold the hash result
+        var hash = [UInt8](repeating: 0, count: Int(CC_SHA1_DIGEST_LENGTH))
+        
+        // Perform the SHA-1 hash calculation
+        publicKeyData.withUnsafeBytes { buffer in
+            _ = CC_SHA1(buffer.baseAddress, CC_LONG(buffer.count), &hash)
+        }
+        
+        return hash.hexEncodedString()
+    }
 
 }

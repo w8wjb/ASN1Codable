@@ -25,19 +25,24 @@ let package = Package(
         .target(
             name: "ASN1Codable",
             dependencies: [],
-            path: "Sources"
+            path: "Sources",
+            resources: [
+                .copy("Resources/AppleIncRootCertificate.cer")
+            ]
         ),
         .testTarget(
             name: "ASN1CodableTests",
             dependencies: ["ASN1Codable"],
             path: "Tests",
                 resources: [
-                    .process("./X509/1024b-rsa-example-cert.der"),
-                    .process("./X509/1024b-rsa-example-cert.pem"),
-                    .process("./X509/isrgrootx1.der"),
-                    .process("./X509/isrgrootx1.pem"),
-                    .process("./X509/test.expected.csr"),
-                    .process("./X509/test.private.key"),
+                    .copy("./X509/1024b-rsa-example-cert.der"),
+                    .copy("./X509/1024b-rsa-example-cert.pem"),
+                    .copy("./X509/isrgrootx1.der"),
+                    .copy("./X509/isrgrootx1.pem"),
+                    .copy("./X509/test.expected.csr"),
+                    .copy("./X509/test.private.key"),
+                    .copy("./MAS/gb_receipt.der"),
+                    .copy("./MAS/maccy_receipt.der")
             ]
         ),
     ]

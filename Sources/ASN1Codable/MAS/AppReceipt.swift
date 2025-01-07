@@ -13,11 +13,15 @@ public struct AppReceipt: Decodable, DERTagAware {
     
     public static var childTagStrategy: (any DERTagStrategy)?
     
-    let attributes: Dictionary<Int, ReceiptAttribute>
+    var attributes: Dictionary<Int, ReceiptAttribute>
 
     /** The app’s bundle identifier. */
     public var bundleId: String? {
         attributes[2]?.stringValue
+    }
+    
+    public var bundleIdData: Data? {
+        attributes[2]?.data
     }
     
     /** The app’s version number.  */
@@ -27,12 +31,22 @@ public struct AppReceipt: Decodable, DERTagAware {
     
     /** An opaque value used, with other data, to compute the SHA-1 hash during validation.  */
     public var opaqueValue: Data? {
-        attributes[3]?.data
+        attributes[4]?.data
     }
     
     /** A SHA-1 hash, used to validate the receipt.  */
     public var sha1Digest: Data? {
-        attributes[5]?.data
+        get {
+            attributes[5]?.data
+        }
+        set {
+            if let newData = newValue {
+                attributes[5] = ReceiptAttribute(type: 5, data: newData)
+            } else {
+                attributes.removeValue(forKey: 5)
+            }
+            
+        }
     }
 
     /** The receipt for an in-app purchase. */
@@ -94,6 +108,12 @@ public struct AppReceipt: Decodable, DERTagAware {
             case type
             case version
             case value
+        }
+        
+        init(type: Int, version: Int = 1, data: Data) {
+            self.type = type
+            self.version = version
+            self.data = data
         }
         
         public init(from decoder: any Decoder) throws {

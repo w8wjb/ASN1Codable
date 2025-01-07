@@ -12,9 +12,9 @@ final class AppReceiptTests: XCTestCase {
 
 
 
-    func testGarageBandReceipt() throws {
+    func testDecodeGarageBandReceipt() throws {
         
-        let receiptPath = Bundle(for: Self.self).path(forResource: "gb_receipt", ofType: "der")!
+        let receiptPath = Bundle.module.path(forResource: "gb_receipt", ofType: "der")!
         let receiptData = try Data(contentsOf: URL(fileURLWithPath: receiptPath))
         
         let decoder = DERDecoder()
@@ -81,10 +81,33 @@ final class AppReceiptTests: XCTestCase {
         
         let signerInfo = pkcs7.signerInfo[0]
         
-        XCTAssertEqual(signerInfo.issuer.description, "CN=Apple Worldwide Developer Relations Certification Authority, OU=G5, O=Apple Inc., C=US")
-        
+        XCTAssertEqual(signerInfo.issuer.description,
+                       "CN=Apple Worldwide Developer Relations Certification Authority, OU=G5, O=Apple Inc., C=US")
         
         
     }
 
+
+    func testVerifyGarageBandReceipt() throws {
+        
+        let receiptPath = Bundle.module.path(forResource: "gb_receipt", ofType: "der")!
+        let receiptURL = URL(fileURLWithPath: receiptPath)
+        
+        
+        let validator = try AppReceiptValidator(receiptURL: receiptURL,
+                                                bundleIdentifier: "com.apple.garageband10",
+                                                appVersion: "10.4.11"
+        )
+        
+        let deviceHash = try validator.computeDeviceHash()
+        if deviceHash.hexEncodedString() != "0cc16ee9bc381ff41c44eb56b2807a84382e5097" {
+            validator.receipt.sha1Digest = deviceHash
+        }
+        
+        try validator.validate()
+
+        
+    }
+
+    
 }
