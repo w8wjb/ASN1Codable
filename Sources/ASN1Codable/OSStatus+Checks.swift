@@ -7,7 +7,7 @@
 
 import Foundation
 
-public extension OSStatus {
+internal extension OSStatus {
     
     /**
      Check for and throw an error
