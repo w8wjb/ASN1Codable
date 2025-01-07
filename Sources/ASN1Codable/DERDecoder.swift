@@ -121,7 +121,7 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
         self.tag = try cursor.readNextTag()
         
         guard let lengthByte = cursor.peekNext() else {
-            throw DecodingError.valueNotFound(UInt8.self, DecodingError.Context(codingPath: codingPath, debugDescription: "Could not read the length byte"))
+            throw DecodingError.valueNotFound(UInt8.self, DecodingError.Context(codingPath: codingPath, debugDescription: "Could not read the length byte. Offset \(cursor.position)"))
         }
         
         if lengthByte == 0x80 {
@@ -589,7 +589,7 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
         self.tag = try cursor.readNextTag()
         
         guard let lengthByte = cursor.peekNext() else {
-            throw DecodingError.valueNotFound(UInt8.self, DecodingError.Context(codingPath: codingPath, debugDescription: "Could not read the length byte"))
+            throw DecodingError.valueNotFound(UInt8.self, DecodingError.Context(codingPath: codingPath, debugDescription: "Could not read the length byte. Offset \(cursor.position)"))
         }
         
         if lengthByte == 0x80 {
@@ -639,7 +639,7 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
         defer { popPath() }
 
         guard !isAtEnd else {
-            throw DecodingError.valueNotFound(Any.self, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
+            throw DecodingError.valueNotFound(Any.self, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container. Offset \(cursor.position)"))
         }
         
         let decoded = try unboxNil()
@@ -652,7 +652,7 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
         defer { popPath() }
 
         guard !isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container. Offset \(cursor.position)"))
         }
         
         let decoded = try unbox(type)
@@ -665,7 +665,7 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
         defer { popPath() }
 
         guard !isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container. Offset \(cursor.position)"))
         }
         
         let decoded = try unbox(type)
@@ -678,7 +678,7 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
         defer { popPath() }
 
         guard !isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container. Offset \(cursor.position)"))
         }
         
         let decoded = try unbox(Double.self)
@@ -691,7 +691,7 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
         defer { popPath() }
 
         guard !isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container. Offset \(cursor.position)"))
         }
         
         let value = try unbox(Double.self)
@@ -705,7 +705,7 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
         defer { popPath() }
 
         guard !isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container. Offset \(cursor.position)"))
         }
         
         let decoded = try unbox(type)
@@ -718,7 +718,7 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
         defer { popPath() }
 
         guard !isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container. Offset \(cursor.position)"))
         }
         
         let decoded = try unbox(type)
@@ -731,7 +731,7 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
         defer { popPath() }
 
         guard !isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container. Offset \(cursor.position)"))
         }
         
         let decoded = try unbox(type)
@@ -744,7 +744,7 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
         defer { popPath() }
 
         guard !isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container. Offset \(cursor.position)"))
         }
         
         let decoded = try unbox(type)
@@ -757,7 +757,7 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
         defer { popPath() }
 
         guard !isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container. Offset \(cursor.position)"))
         }
         
         let decoded = try unbox(type)
@@ -770,7 +770,7 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
         defer { popPath() }
 
         guard !isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container. Offset \(cursor.position)"))
         }
         
         let signed = try unbox(Int.self)
@@ -784,7 +784,7 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
         defer { popPath() }
 
         guard !isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container. Offset \(cursor.position)"))
         }
         
         let signed = try unbox(Int16.self)
@@ -798,7 +798,7 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
         defer { popPath() }
 
         guard !isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container. Offset \(cursor.position)"))
         }
         
         let signed = try unbox(Int32.self)
@@ -812,7 +812,7 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
         defer { popPath() }
 
         guard !isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container. Offset \(cursor.position)"))
         }
         
         let signed = try unbox(Int64.self)
@@ -826,7 +826,7 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
         defer { popPath() }
 
         guard !isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container. Offset \(cursor.position)"))
         }
         
         let signed = try unbox(Int64.self)
@@ -841,7 +841,7 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
         defer { popPath() }
 
         guard !isAtEnd else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container. Offset \(cursor.position)"))
         }
         
         if let oidType = type as? OID.Type {
@@ -860,7 +860,7 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
             cursor.mark()
         
             guard !isAtEnd else {
-                throw DecodingError.valueNotFound(T.self, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container"))
+                throw DecodingError.valueNotFound(T.self, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container. Offset \(cursor.position)"))
             }
             
             let decoded: T = try wrapped()
@@ -1234,7 +1234,7 @@ fileprivate class _DERUnboxingContainer {
 
     func peekNextTag() throws -> DERTagOptions {
         guard let tagByte = cursor.peekNext() else {
-            throw DecodingError.valueNotFound(DERTagOptions.self, DecodingError.Context(codingPath: codingPath, debugDescription: "Could not read the next tag"))
+            throw DecodingError.valueNotFound(DERTagOptions.self, DecodingError.Context(codingPath: codingPath, debugDescription: "Could not read the next tag. Offset \(cursor.position)"))
         }
         return DERTagOptions(rawValue: tagByte)
     }
@@ -1246,7 +1246,7 @@ fileprivate class _DERUnboxingContainer {
     func assertNextTag<T>(is tag: DERTagOptions, expectedType: T.Type) throws {
         let nextTag = try cursor.readNextTag()
         guard nextTag == tag else {
-            throw DecodingError.typeMismatch(expectedType, DecodingError.Context(codingPath: codingPath, debugDescription: "Unexpected tag \(nextTag)"))
+            throw DecodingError.typeMismatch(expectedType, DecodingError.Context(codingPath: codingPath, debugDescription: "Unexpected tag \(nextTag). Offset \(cursor.position)"))
         }
     }
 
@@ -1268,7 +1268,7 @@ fileprivate class _DERUnboxingContainer {
             return String(bytes: try readNextPrimitiveBytes(), encoding: .isoLatin1)!
         }
         
-        throw DecodingError.typeMismatch(String.self, DecodingError.Context(codingPath: codingPath, debugDescription: "Unknown tag \(tag)"))
+        throw DecodingError.typeMismatch(String.self, DecodingError.Context(codingPath: codingPath, debugDescription: "Unknown tag \(tag). Offset \(cursor.position)"))
     }
     
     func unbox(_ type: Bool.Type, forKey key: CodingKey? = nil) throws -> Bool {
@@ -1284,6 +1284,8 @@ fileprivate class _DERUnboxingContainer {
     }
     
     func unboxNil(forKey key: CodingKey? = nil) throws -> Bool {
+        let nextTag = try peekNextTag()
+        guard nextTag == .NULL else { return false }
         try assertNextTag(is: .NULL, expectedType: Void.self)
         let boolBytes = try readNextPrimitiveBytes()
         return boolBytes.isEmpty
@@ -1301,7 +1303,7 @@ fileprivate class _DERUnboxingContainer {
         
         var intBytes = inputBytes
         guard intBytes.count <= memSize else {
-            throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: codingPath, debugDescription: "Length bytes is greater than a \(type)"))
+            throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: codingPath, debugDescription: "Length bytes is greater than a \(type). Offset \(cursor.position)"))
         }
         
         var filler: UInt8 = 0x00
@@ -1391,7 +1393,8 @@ fileprivate class _DERUnboxingContainer {
         } else { // DECIMAL_ENCODING
             
         }
-        throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Unknown real value"))
+        throw DecodingError.valueNotFound(type,
+                                          DecodingError.Context(codingPath: codingPath, debugDescription: "Unknown real value. Offset \(cursor.position)"))
 
         
     }
@@ -1417,6 +1420,11 @@ fileprivate class _DERUnboxingContainer {
         
         
         let identifier = identifiers.compactMap(String.init).joined(separator: ".")
+        
+        if let knownOID = OID.knownOIDs[identifier] {
+            return knownOID
+        }
+        
         return OID(oid: identifier)
     }
     
@@ -1441,7 +1449,7 @@ fileprivate class _DERUnboxingContainer {
         let tag = try cursor.readNextTag()
         let expectedTag = decoder.tagStrategy.tag(forType: type, atPath: codingPath)
         guard tag == expectedTag || tag == .BIT_STRING || tag == .OCTET_STRING else {
-            throw DecodingError.typeMismatch(Data.self, DecodingError.Context(codingPath: codingPath, debugDescription: "Unexpected tag \(tag)"))
+            throw DecodingError.typeMismatch(Data.self, DecodingError.Context(codingPath: codingPath, debugDescription: "Unexpected tag \(tag). Offset \(cursor.position)"))
         }
 
         var data = try readNextPrimitiveBytes()
@@ -1476,13 +1484,13 @@ fileprivate class _DERUnboxingContainer {
             dateFormatter.dateFormat = "yyyyMMddHHmmss'Z'"
 
         } else {
-            throw DecodingError.typeMismatch(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Unexpected tag \(nextTag)"))
+            throw DecodingError.typeMismatch(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Unexpected tag \(nextTag). Offset \(cursor.position)"))
         }
 
         try cursor.readNextTag()
         let formatted = String(bytes: try readNextPrimitiveBytes(), encoding: .ascii)!
         guard let date = dateFormatter.date(from: formatted) else {
-            throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: codingPath, debugDescription: "Could not read date from: \(formatted)"))
+            throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: codingPath, debugDescription: "Could not read date from: \(formatted). Offset \(cursor.position)"))
         }
         return date
     }
@@ -1516,7 +1524,7 @@ fileprivate class _DERUnboxingContainer {
         let expectedTag = decoder.tagStrategy.tag(forType: type, atPath: codingPath)
                         
         guard nextTag == expectedTag else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Next tag [\(nextTag)] is not the expected [\(expectedTag)]"))
+            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Next tag \(nextTag) [\(nextTag.rawValue)] is not the expected \(expectedTag) [\(expectedTag.rawValue)]. Offset: \(cursor.position)"))
         }
         
         // If the type needs its own tag strategy, replace the one in use temporarily

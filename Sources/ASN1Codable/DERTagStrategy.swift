@@ -8,9 +8,49 @@
 import Foundation
 
 
+/// A protocol defining strategies for determining DER tags for various aspects of encoding and decoding operations.
+///
+/// DER tags identify the type of a value in ASN.1 encoding and can vary based on context, type, or value.
+/// Implement this protocol to provide custom tagging logic for DER encoding and decoding.
+///
+/// This protocol is useful for cases where tagging behavior depends on:
+/// - The position of the value in the object hierarchy (`codingPath`).
+/// - The Swift type of the value being encoded/decoded.
+/// - The actual runtime value being encoded.
 public protocol DERTagStrategy {
+    
+    /// Returns the DER tag  for a specific coding path.
+    ///
+    /// Use this method to determine the appropriate tag based solely on the `codingPath`,
+    /// which represents the hierarchy of keys leading to the current value.
+    ///
+    /// - Parameter codingPath: The hierarchy of coding keys indicating the position in the object graph.
+    /// - Returns: The `DERTagOptions` representing the DER tag for this coding path.
     func tag(forPath codingPath: [CodingKey]) -> DERTagOptions
+    
+    
+    /// Returns the DER tag for a specific Swift type at a given coding path.
+    ///
+    /// Use this method to determine the appropriate tag for a type while taking the coding path into account.
+    /// This can be useful when the tagging depends on both the value's position and its type.
+    ///
+    /// - Parameters:
+    ///   - type: The `Decodable` type for which the tag is being determined.
+    ///   - codingPath: The hierarchy of coding keys indicating the position in the object graph.
+    /// - Returns: The `DERTagOptions` representing the DER tag for this type at the given coding path.
     func tag(forType type: Decodable.Type, atPath codingPath: [CodingKey]) -> DERTagOptions
+    
+    
+    
+    /// Returns the DER tag options for a specific value at a given coding path.
+    ///
+    /// Use this method to determine the appropriate tag for a specific value,
+    /// factoring in its runtime characteristics and its position in the object graph.
+    ///
+    /// - Parameters:
+    ///   - value: The `Encodable` value for which the tag is being determined.
+    ///   - codingPath: The hierarchy of coding keys indicating the position in the object graph.
+    /// - Returns: The `DERTagOptions` representing the DER tag for this value at the given coding path.
     func tag(forValue value: Encodable, atPath codingPath: [CodingKey]) -> DERTagOptions
 }
 

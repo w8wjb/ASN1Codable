@@ -19,7 +19,7 @@ class CertificationRequestTests: XCTestCase {
     
     override func setUpWithError() throws {
         
-        let path = Bundle(for: CertificationRequestTests.self).path(forResource: "test.private", ofType: "key")!
+        let path = Bundle.module.path(forResource: "test.private", ofType: "key")!
         let keyData = try Data(contentsOf: URL(fileURLWithPath: path))
         
         let attributes: [CFString : Any] = [
@@ -86,7 +86,7 @@ class CertificationRequestTests: XCTestCase {
         let pem = try PEMTools.wrap(csr)
         
         
-        let path = Bundle(for: CertificationRequestTests.self).path(forResource: "test.expected", ofType: "csr")!
+        let path = Bundle.module.path(forResource: "test.expected", ofType: "csr")!
         
         let expected = try String(contentsOf: URL(fileURLWithPath: path))
         XCTAssertEqual(expected, pem)

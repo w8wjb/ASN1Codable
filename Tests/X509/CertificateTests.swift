@@ -18,7 +18,7 @@ class CertificateTests: XCTestCase {
 
     override func setUpWithError() throws {
         
-        let path = Bundle(for: CertificateTests.self).path(forResource: "test.private", ofType: "key")!
+        let path = Bundle.module.path(forResource: "test.private", ofType: "key")!
         let keyData = try Data(contentsOf: URL(fileURLWithPath: path))
         
         let attributes: [CFString : Any] = [
@@ -46,7 +46,7 @@ class CertificateTests: XCTestCase {
 
     func testDecodeCertificateExample1() throws {
 
-        let certPath = Bundle(for: CertificationRequestTests.self).path(forResource: "1024b-rsa-example-cert", ofType: "der")!
+        let certPath = Bundle.module.path(forResource: "1024b-rsa-example-cert", ofType: "der")!
         let certData = try Data(contentsOf: URL(fileURLWithPath: certPath))
         
         let decoder = DERDecoder()
@@ -57,6 +57,7 @@ class CertificateTests: XCTestCase {
     }
     
     
+    #if os(macOS)
     func testDecodeInstalledCerts() throws {
         
         // Limit to only identities that are currently valid
@@ -104,11 +105,11 @@ class CertificateTests: XCTestCase {
         }
         return nil
     }
-
+    #endif
     
     func testDecodeCertificateLetsEncryptRoot() throws {
 
-        let certPath = Bundle(for: CertificationRequestTests.self).path(forResource: "isrgrootx1", ofType: "der")!
+        let certPath = Bundle.module.path(forResource: "isrgrootx1", ofType: "der")!
         let certData = try Data(contentsOf: URL(fileURLWithPath: certPath))
         
         let decoder = DERDecoder()
@@ -128,7 +129,7 @@ class CertificateTests: XCTestCase {
     
     func testEncodeCertificateLetsEncryptRoot() throws {
         
-        let certPath = Bundle(for: CertificationRequestTests.self).path(forResource: "isrgrootx1", ofType: "der")!
+        let certPath = Bundle.module.path(forResource: "isrgrootx1", ofType: "der")!
         let certData = try Data(contentsOf: URL(fileURLWithPath: certPath))
         let hexCertData = certData.hexEncodedString()
         

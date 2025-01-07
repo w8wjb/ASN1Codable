@@ -21,41 +21,14 @@ public struct CertificationRequest : Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         certificationRequestInfo = try container.decode(CertificationRequestInfo.self, forKey: .certificationRequestInfo)
         
-        var algorithmContainer = try container.nestedUnkeyedContainer(forKey: .signatureAlgorithm)
-        if let signatureAlgorithmOID = try algorithmContainer.decodeIfPresent(OID.self) {
-            
-            let _ = try algorithmContainer.decodeNil()
-            
-            let signatureAlgorithm: SecKeyAlgorithm
-            
-            switch signatureAlgorithmOID {
-            case .sha1WithRSAEncryption:
-                signatureAlgorithm = .rsaSignatureMessagePKCS1v15SHA1
-            case .sha224WithRSAEncryption:
-                signatureAlgorithm = .rsaSignatureMessagePKCS1v15SHA224
-            case .sha256WithRSAEncryption:
-                signatureAlgorithm = .rsaSignatureMessagePKCS1v15SHA256
-            case .sha384WithRSAEncryption:
-                signatureAlgorithm = .rsaSignatureMessagePKCS1v15SHA384
-            case .sha512WithRSAEncryption:
-                signatureAlgorithm = .rsaSignatureMessagePKCS1v15SHA512
-            case .ecdsa_with_SHA1:
-                signatureAlgorithm = .ecdsaSignatureMessageX962SHA1
-            case .ecdsa_with_SHA224:
-                signatureAlgorithm = .ecdsaSignatureMessageX962SHA224
-            case .ecdsa_with_SHA256:
-                signatureAlgorithm = .ecdsaSignatureMessageX962SHA256
-            case .ecdsa_with_SHA384:
-                signatureAlgorithm = .ecdsaSignatureMessageX962SHA384
-            case .ecdsa_with_SHA512:
-                signatureAlgorithm = .ecdsaSignatureMessageX962SHA512
-            default:
-                throw DecodingError.typeMismatch(OID.self, DecodingError.Context(codingPath: algorithmContainer.codingPath, debugDescription: "Unsupported encryption type: \(signatureAlgorithmOID)"))
-            }
-            self.signatureAlgorithm = signatureAlgorithm
-            
-            self.signature = try container.decode(Data.self, forKey: .signature)
+        let algorithmIdentifier = try container.decode(AlgorithmIdentifier.self, forKey: .signatureAlgorithm)
+        
+        guard let signatureAlgorithm = algorithmIdentifier.signatureAlgorithm() else {
+            throw DecodingError.typeMismatch(OID.self, DecodingError.Context(codingPath: container.codingPath, debugDescription: "Unsupported encryption type: \(algorithmIdentifier)"))
         }
+        
+        self.signatureAlgorithm = signatureAlgorithm
+        self.signature = try container.decode(Data.self, forKey: .signature)
     }
     
     public mutating func sign(privateKey: SecKey, algorithm: SecKeyAlgorithm) throws {
