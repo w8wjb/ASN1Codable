@@ -11,125 +11,115 @@ public struct AppReceipt: Decodable, DERTagAware {
     
     public static var tag: DERTagOptions? = .SET
     
-    public static var childTagStrategy: (any DERTagStrategy)?
+    public static var childTagStrategy: (any DERTagStrategy)? = TagStrategy()
     
-    var attributes: Dictionary<Int, ReceiptAttribute>
+    var attributes: Array<ReceiptAttribute>
 
-    /** The app’s bundle identifier. */
-    public var bundleId: String? {
-        attributes[2]?.stringValue
-    }
+    /// Bundle Identifier
+    /// The app’s bundle identifier.
+    ///
+    /// This corresponds to the value of CFBundleIdentifier in the Info.plist file. Use this value to validate if the receipt was indeed generated for your app
+    public var bundleId: String?
     
-    public var bundleIdData: Data? {
-        attributes[2]?.data
-    }
+    /// The bundleId, but as Data
+    public var bundleIdData: Data?
     
-    /** The app’s version number.  */
-    public var applicationVersion: String? {
-        attributes[3]?.stringValue
-    }
+    /// App Version
+    /// The app’s version number.
+    ///
+    /// This corresponds to the value of CFBundleVersion (in iOS) or CFBundleShortVersionString (in macOS) in the Info.plist.
+    public var applicationVersion: String?
     
-    /** An opaque value used, with other data, to compute the SHA-1 hash during validation.  */
-    public var opaqueValue: Data? {
-        attributes[4]?.data
-    }
+    /// An opaque value used, with other data, to compute the SHA-1 hash during validation.
+    public var opaqueValue: Data?
     
-    /** A SHA-1 hash, used to validate the receipt.  */
-    public var sha1Digest: Data? {
-        get {
-            attributes[5]?.data
-        }
-        set {
-            if let newData = newValue {
-                attributes[5] = ReceiptAttribute(type: 5, data: newData)
-            } else {
-                attributes.removeValue(forKey: 5)
-            }
-            
-        }
-    }
+    /// A SHA-1 hash, used to validate the receipt.
+    public var sha1Digest: Data?
 
-    /** The receipt for an in-app purchase. */
-    public var inApp: Data? {
-        return nil
-    }
+    /// The receipts for an in-app purchase.
+    ///
+    /// Note: An empty array is a valid receipt.
+    ///
+    /// The in-app purchase receipt for a consumable product is added to the receipt when the purchase is made. It is kept in the receipt until your app finishes that transaction.
+    /// After that point, it is removed from the receipt the next time the receipt is updated - for example, when the user makes another purchase or if your app explicitly refreshes the receipt.
+    ///
+    /// The in-app purchase receipt for a non-consumable product, auto-renewable subscription, non-renewing subscription, or free subscription remains in the receipt indefinitely.
+    public var inAppPurchaseReceipts = [InAppPurchaseReceipt]()
     
-    /** The version of the app that was originally purchased. */
-    public var originalApplicationVersion: String? {
-        attributes[19]?.stringValue
-    }
+    /// The version of the app that was originally purchased.
+    ///
+    /// This corresponds to the value of CFBundleVersion (in iOS) or CFBundleShortVersionString (in macOS) in the Info.plist file when the purchase was originally made.
+    ///
+    /// In the sandbox environment, the value of this field is always “1.0”.
+    public var originalApplicationVersion: String?
     
-    /** The date when the app receipt was created. */
-    public var receiptCreationDate: Date? {
-        if let dateString = attributes[12]?.stringValue {
-            let formatter = ISO8601DateFormatter()
-            return formatter.date(from: dateString)
-        }
-        return nil
-    }
+    /// The date when the app receipt was created.
+    ///
+    /// When validating a receipt, use this date to validate the receipt’s signature.
+    public var receiptCreationDate: Date?
     
-    /** The date that the app receipt expires. */
-    public var expirationDate: Date? {
-        if let dateString = attributes[21]?.stringValue {
-            let formatter = ISO8601DateFormatter()
-            return formatter.date(from: dateString)
-        }
-        return nil
-    }
+    /// The date that the app receipt expires.
+    ///
+    /// This key is present only for apps purchased through the Volume Purchase Program. If this key is not present, the receipt does not expire.
+    ///
+    /// When validating a receipt, compare this date to the current date to determine whether the receipt is expired.
+    /// Do not try to use this date to calculate any other information, such as the time remaining before expiration.
+    public var expirationDate: Date?
     
     public init(from decoder: any Decoder) throws {
         let container = try decoder.singleValueContainer()
-        let attributeSet = try container.decode(Set<ReceiptAttribute>.self)
+        attributes = try container.decode(Array<ReceiptAttribute>.self)
         
-        attributes = Dictionary(uniqueKeysWithValues: attributeSet.map({ ($0.type, $0) }))
+        let formatter = ISO8601DateFormatter()
+        let valueDecoder = DERDecoder()
+        valueDecoder.tagStrategy = Self.childTagStrategy!
+
+        for attribute in attributes {
+            switch attribute.type {
+            case 2:
+                bundleId = attribute.stringValue
+                bundleIdData = attribute.data
+            case 3:
+                applicationVersion = attribute.stringValue
+            case 4:
+                opaqueValue = attribute.data
+            case 5:
+                sha1Digest = attribute.data
+            case 12:
+                if let dateString = attribute.stringValue {
+                    receiptCreationDate = formatter.date(from: dateString)
+                }
+                
+            case 17:
+                let purchaseData = attribute.data
+                let iapReceipt = try valueDecoder.decode(InAppPurchaseReceipt.self, from: purchaseData)
+                inAppPurchaseReceipts.append(iapReceipt)
+                
+            case 19:
+                originalApplicationVersion = attribute.stringValue
+                
+            case 21:
+                if let dateString = attribute.stringValue {
+                    expirationDate = formatter.date(from: dateString)
+                }
+
+            default:
+                continue
+            }
+            
+        }
+        
+        
     }
     
-    public struct ReceiptAttribute: Decodable, Hashable, Equatable {
+    private class TagStrategy : DefaultDERTagStrategy {
         
-        public let type: Int
-        public let version: Int
-        public let data: Data
-        
-        public var stringValue: String? {
-            get {
-                let decoder = DERDecoder()
-                return try? decoder.decode(String.self, from: self.data)
+        public override func tag(forType type: Decodable.Type, atPath codingPath: [CodingKey]) -> DERTagOptions {
+            if type is Array<ReceiptAttribute>.Type {
+                return .SET
             }
-        }
-
-        public var intValue: Int? {
-            get {
-                let decoder = DERDecoder()
-                return try? decoder.decode(Int.self, from: self.data)
-            }
-        }
-
-        private enum CodingKeys: CodingKey {
-            case type
-            case version
-            case value
-        }
-        
-        init(type: Int, version: Int = 1, data: Data) {
-            self.type = type
-            self.version = version
-            self.data = data
-        }
-        
-        public init(from decoder: any Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            self.type = try container.decode(Int.self, forKey: .type)
-            self.version = try container.decode(Int.self, forKey: .version)
-            self.data = try container.decode(Data.self, forKey: .value)
-        }
-        
-        public func hash(into hasher: inout Hasher) {
-            hasher.combine(type)
-        }
-        
-        
-        public static func == (lhs: Self, rhs: Self) -> Bool {
-            return lhs.type == rhs.type
+ 
+            return super.tag(forType: type, atPath: codingPath)
         }
 
     }

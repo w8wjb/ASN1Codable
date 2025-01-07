@@ -41,8 +41,7 @@ let package = Package(
                     .copy("./X509/isrgrootx1.pem"),
                     .copy("./X509/test.expected.csr"),
                     .copy("./X509/test.private.key"),
-                    .copy("./MAS/gb_receipt.der"),
-                    .copy("./MAS/maccy_receipt.der")
+                    .copy("./MAS/gb_receipt.der")
             ]
         ),
     ]

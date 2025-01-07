@@ -23,6 +23,7 @@ public struct AlgorithmIdentifier: Codable, Hashable {
         switch identifier {
         case .rsaEncryption,
                 .sha256WithRSAEncryption,
+                .SHA1,
                 .SHA256,
                 .SHA384,
                 .SHA512,
