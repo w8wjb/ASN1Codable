@@ -7,10 +7,15 @@
 
 import Foundation
 import Combine
+import os
 
 //func trace(_ message: Any = "", caller: Any, file: String = #file, _ function: String = #function, line: Int = #line) {
 //    print(message, type(of: caller), function, line)
 //}
+
+func format(_ codingPath: [CodingKey]) -> String {
+    return codingPath.map(\.stringValue).joined(separator: ", ")
+}
 
 public class DERDecoder : TopLevelDecoder {
     public typealias Input = Data
@@ -46,6 +51,12 @@ fileprivate enum LengthType {
     case indefinite
 }
 
+fileprivate protocol ClosableDecodingContainer {
+    
+    func close()
+    
+}
+
 fileprivate class _DERDecoder : Decoder {
     var codingPath: [CodingKey]
     
@@ -55,6 +66,8 @@ fileprivate class _DERDecoder : Decoder {
     
     private let cursor: BufferCursor
     
+    var nestedContainer: (any ClosableDecodingContainer)?
+    
     init(userInfo: [CodingUserInfoKey : Any] = [:], codingPath: [CodingKey] = [], tagStrategy: DERTagStrategy, data: Data) {
         self.userInfo = userInfo
         self.codingPath = codingPath
@@ -62,18 +75,32 @@ fileprivate class _DERDecoder : Decoder {
         self.cursor = BufferCursor(data)
     }
     
+    func cleanupNestedContainers() {
+        // Close any open containers before reading the next tag
+        if let nestedContainer = self.nestedContainer {
+            nestedContainer.close()
+            self.nestedContainer = nil
+        }
+    }
+    
     func container<Key>(keyedBy type: Key.Type) throws -> KeyedDecodingContainer<Key> where Key : CodingKey {
+//        cleanupNestedContainers()
         let container = try DERKeyedDecodingContainer<Key>(referencing: self, cursor: cursor, codingPath: codingPath)
+//        nestedContainer = container
         return KeyedDecodingContainer(container)
     }
     
     func unkeyedContainer() throws -> UnkeyedDecodingContainer {
+//        cleanupNestedContainers()
         let container = try DERUnkeyedDecodingContainer(referencing: self, cursor: cursor, codingPath: codingPath)
+//        nestedContainer = container
         return container
     }
     
     func singleValueContainer() throws -> SingleValueDecodingContainer {
+//        cleanupNestedContainers()
         let container = try DERSingleValueDecodingContainer(referencing: self, cursor: cursor, codingPath: codingPath)
+//        nestedContainer = container
         return container
     }
     
@@ -97,7 +124,7 @@ struct DERTagKey: CodingKey {
     }
 }
 
-fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContainer, KeyedDecodingContainerProtocol {
+fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContainer, KeyedDecodingContainerProtocol, ClosableDecodingContainer {
 
     typealias Key = K
     
@@ -141,30 +168,55 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
         fatalError("Unimplemented")
     }
 
+    func close() {
+        
+        if let nestedContainer = nestedContainer {
+            nestedContainer.close()
+            self.nestedContainer = nil
+        }
+        
+        if lengthType == .indefinite
+            && cursor.current == 0x00
+            && cursor.peekNext() == 0x00 {
+            // If we're at the end of an indefinite length container, consume the two null bytes
+            cursor.nextBytes(2)
+        }
+        
+    }
 
     func decodeNil(forKey key: Key) throws -> Bool {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
         return try unboxNil(forKey: key)
     }
 
     func decode(_ type: Bool.Type, forKey key: Key) throws -> Bool {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
         return try unbox(type, forKey: key)
     }
 
     func decode(_ type: String.Type, forKey key: Key) throws -> String {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
         return try unbox(type, forKey: key)    }
 
     func decode(_ type: Double.Type, forKey key: Key) throws -> Double {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
         return try unbox(type, forKey: key)    }
 
     func decode(_ type: Float.Type, forKey key: Key) throws -> Float {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
         
@@ -175,6 +227,8 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
 
 
     func decode(_ type: Int.Type, forKey key: Key) throws -> Int {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
 
@@ -183,6 +237,8 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
 
 
     func decode(_ type: Int8.Type, forKey key: Key) throws -> Int8 {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
 
@@ -190,6 +246,8 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
     }
 
     func decode(_ type: Int16.Type, forKey key: Key) throws -> Int16 {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
 
@@ -198,6 +256,8 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
 
 
     func decode(_ type: Int32.Type, forKey key: Key) throws -> Int32 {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
 
@@ -206,6 +266,8 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
 
 
     func decode(_ type: Int64.Type, forKey key: Key) throws -> Int64 {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
 
@@ -214,6 +276,8 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
 
 
     func decode(_ type: UInt.Type, forKey key: Key) throws -> UInt {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
 
@@ -222,6 +286,8 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
 
 
     func decode(_ type: UInt8.Type, forKey key: Key) throws -> UInt8 {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
         
@@ -230,6 +296,8 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
 
 
     func decode(_ type: UInt16.Type, forKey key: Key) throws -> UInt16 {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
 
@@ -238,6 +306,8 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
 
 
     func decode(_ type: UInt32.Type, forKey key: Key) throws -> UInt32 {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
 
@@ -245,6 +315,8 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
     }
 
     func decode(_ type: UInt64.Type, forKey key: Key) throws -> UInt64 {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
 
@@ -253,6 +325,8 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
 
 
     func decode<T>(_ type: T.Type, forKey key: K) throws -> T where T : Decodable {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
         
@@ -261,6 +335,8 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
     
 
     func decodeIfPresent(_ type: Bool.Type, forKey key: Key) throws -> Bool? {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
         do {
@@ -276,6 +352,8 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
 
 
     func decodeIfPresent(_ type: String.Type, forKey key: Key) throws -> String? {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
         
@@ -292,6 +370,8 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
 
 
     func decodeIfPresent(_ type: Double.Type, forKey key: Key) throws -> Double? {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
         
@@ -308,6 +388,8 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
 
 
     func decodeIfPresent(_ type: Float.Type, forKey key: Key) throws -> Float? {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
         
@@ -325,6 +407,8 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
 
 
     func decodeIfPresent(_ type: Int.Type, forKey key: Key) throws -> Int? {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
         
@@ -341,6 +425,8 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
 
 
     func decodeIfPresent(_ type: Int8.Type, forKey key: Key) throws -> Int8? {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
         
@@ -357,6 +443,8 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
 
 
     func decodeIfPresent(_ type: Int16.Type, forKey key: Key) throws -> Int16? {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
         
@@ -373,6 +461,8 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
 
 
     func decodeIfPresent(_ type: Int32.Type, forKey key: Key) throws -> Int32? {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
         
@@ -388,6 +478,8 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
     }
 
     func decodeIfPresent(_ type: Int64.Type, forKey key: Key) throws -> Int64? {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
         
@@ -404,6 +496,8 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
 
 
     func decodeIfPresent(_ type: UInt.Type, forKey key: Key) throws -> UInt? {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
         
@@ -420,6 +514,8 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
 
 
     func decodeIfPresent(_ type: UInt8.Type, forKey key: Key) throws -> UInt8? {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
         
@@ -436,6 +532,8 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
 
 
     func decodeIfPresent(_ type: UInt16.Type, forKey key: Key) throws -> UInt16? {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
         
@@ -452,6 +550,8 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
 
 
     func decodeIfPresent(_ type: UInt32.Type, forKey key: Key) throws -> UInt32? {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
         
@@ -468,6 +568,8 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
 
 
     func decodeIfPresent(_ type: UInt64.Type, forKey key: Key) throws -> UInt64? {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
         
@@ -484,6 +586,8 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
 
 
     func decodeIfPresent<T>(_ type: T.Type, forKey key: Key) throws -> T? where T : Decodable {
+        cleanupNestedContainers()
+
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
         
@@ -500,17 +604,21 @@ fileprivate class DERKeyedDecodingContainer<K : CodingKey> : _DERUnboxingContain
 
 
     func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type, forKey key: Key) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
+        cleanupNestedContainers()
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
         let container = try DERKeyedDecodingContainer<NestedKey>(referencing: decoder, cursor: cursor, codingPath: codingPath)
+        nestedContainer = container
         return KeyedDecodingContainer(container)
     }
 
 
     func nestedUnkeyedContainer(forKey key: Key) throws -> UnkeyedDecodingContainer {
+        cleanupNestedContainers()
         self.codingPath.append(key)
         defer { self.codingPath.removeLast() }
         let container = try DERUnkeyedDecodingContainer(referencing: decoder, cursor: cursor, codingPath: codingPath)
+        nestedContainer = container
         return container
     }
 
@@ -564,7 +672,7 @@ private struct _DERKey : CodingKey, CustomStringConvertible {
 
 
 // MARK: - UnkeyedEncodingContainer
-fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDecodingContainer {
+fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDecodingContainer, ClosableDecodingContainer {
 
     var tag: DERTagOptions
     
@@ -634,7 +742,25 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
         }
     }
     
+    func close() {
+        
+        if let nestedContainer = nestedContainer {
+            nestedContainer.close()
+            self.nestedContainer = nil
+        }
+        
+        if lengthType == .indefinite {
+            if cursor.current == 0x00 && cursor.peekNext() == 0x00 {
+                // If we're at the end of an indefinite length container, consume the two null bytes
+                cursor.nextBytes(2)
+            }
+        }
+        
+    }
+    
     func decodeNil() throws -> Bool {
+        cleanupNestedContainers()
+
         pushPath()
         defer { popPath() }
 
@@ -648,6 +774,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: Bool.Type) throws -> Bool {
+        cleanupNestedContainers()
+
         pushPath()
         defer { popPath() }
 
@@ -661,6 +789,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: String.Type) throws -> String {
+        cleanupNestedContainers()
+
         pushPath()
         defer { popPath() }
 
@@ -674,6 +804,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: Double.Type) throws -> Double {
+        cleanupNestedContainers()
+
         pushPath()
         defer { popPath() }
 
@@ -687,6 +819,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: Float.Type) throws -> Float {
+        cleanupNestedContainers()
+
         pushPath()
         defer { popPath() }
 
@@ -701,6 +835,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: Int.Type) throws -> Int {
+        cleanupNestedContainers()
+
         pushPath()
         defer { popPath() }
 
@@ -714,6 +850,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: Int8.Type) throws -> Int8 {
+        cleanupNestedContainers()
+
         pushPath()
         defer { popPath() }
 
@@ -727,6 +865,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: Int16.Type) throws -> Int16 {
+        cleanupNestedContainers()
+
         pushPath()
         defer { popPath() }
 
@@ -740,6 +880,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: Int32.Type) throws -> Int32 {
+        cleanupNestedContainers()
+
         pushPath()
         defer { popPath() }
 
@@ -753,6 +895,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: Int64.Type) throws -> Int64 {
+        cleanupNestedContainers()
+
         pushPath()
         defer { popPath() }
 
@@ -766,6 +910,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: UInt.Type) throws -> UInt {
+        cleanupNestedContainers()
+
         pushPath()
         defer { popPath() }
 
@@ -780,6 +926,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: UInt8.Type) throws -> UInt8 {
+        cleanupNestedContainers()
+
         pushPath()
         defer { popPath() }
 
@@ -794,6 +942,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: UInt16.Type) throws -> UInt16 {
+        cleanupNestedContainers()
+
         pushPath()
         defer { popPath() }
 
@@ -808,6 +958,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: UInt32.Type) throws -> UInt32 {
+        cleanupNestedContainers()
+
         pushPath()
         defer { popPath() }
 
@@ -822,6 +974,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func decode(_ type: UInt64.Type) throws -> UInt64 {
+        cleanupNestedContainers()
+
         pushPath()
         defer { popPath() }
 
@@ -837,9 +991,13 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
 
     // MARK: Decodable
     func decode<T>(_ type: T.Type) throws -> T where T : Decodable {
+        cleanupNestedContainers()
+
         pushPath()
         defer { popPath() }
 
+        cleanupNestedContainers()
+        
         guard !isAtEnd else {
             throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: codingPath, debugDescription: "Reached the end of the decoding container. Offset \(cursor.position)"))
         }
@@ -855,6 +1013,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
     
     func tryDecode<T : Decodable>(_ wrapped: (() throws -> T)) throws -> T? {
+        cleanupNestedContainers()
+
         do {
             pushPath()
             cursor.mark()
@@ -977,7 +1137,8 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
     }
 
     func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
-        
+        cleanupNestedContainers()
+
         self.codingPath.append(indexKey())
         defer {
             index += 1
@@ -985,10 +1146,12 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
         }
 
         let container = try DERKeyedDecodingContainer<NestedKey>(referencing: decoder, cursor: cursor, codingPath: codingPath)
+        nestedContainer = container
         return KeyedDecodingContainer(container)
     }
 
     func nestedUnkeyedContainer() throws -> UnkeyedDecodingContainer {
+        cleanupNestedContainers()
         self.codingPath.append(indexKey())
         defer {
             index += 1
@@ -996,6 +1159,7 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
         }
 
         let container = try DERUnkeyedDecodingContainer(referencing: decoder, cursor: cursor, codingPath: codingPath)
+        nestedContainer = container
         return container
     }
     
@@ -1006,7 +1170,11 @@ fileprivate class DERUnkeyedDecodingContainer : _DERUnboxingContainer, UnkeyedDe
 }
 
 
-fileprivate class DERSingleValueDecodingContainer: _DERUnboxingContainer, SingleValueDecodingContainer {
+fileprivate class DERSingleValueDecodingContainer: _DERUnboxingContainer, SingleValueDecodingContainer, ClosableDecodingContainer {
+    
+    func close() {
+        // Nothing to do
+    }
     
     func decodeNil() -> Bool {
         return (try? unboxNil()) ?? false
@@ -1222,6 +1390,9 @@ fileprivate class _DERUnboxingContainer {
     private var _mark: Int = 0
     let cursor: BufferCursor
     
+    var nestedContainer: (any ClosableDecodingContainer)?
+
+    
     init(referencing decoder: _DERDecoder, cursor: BufferCursor, codingPath: [CodingKey] = []) throws {
         self.decoder = decoder
         self.codingPath = codingPath
@@ -1232,7 +1403,16 @@ fileprivate class _DERUnboxingContainer {
         return MemoryLayout<T>.size
     }
 
+    func cleanupNestedContainers() {
+        // Close any open containers before reading the next tag
+        if let nestedContainer = self.nestedContainer {
+            nestedContainer.close()
+            self.nestedContainer = nil
+        }
+    }
+    
     func peekNextTag() throws -> DERTagOptions {
+        
         guard let tagByte = cursor.peekNext() else {
             throw DecodingError.valueNotFound(DERTagOptions.self, DecodingError.Context(codingPath: codingPath, debugDescription: "Could not read the next tag. Offset \(cursor.position)"))
         }

@@ -53,9 +53,9 @@ public struct PKCS7Container: Decodable, DERTagAware {
         let signedData = try signedDataContent.nestedContainer(keyedBy: CodingKeys.self)
         
         self.version = try signedData.decode(Int.self, forKey: .version)
-        self.digestAlgorithms = try container.decode(Set<AlgorithmIdentifier>.self, forKey: .digestAlgorithms)
+        self.digestAlgorithms = try signedData.decode(Set<AlgorithmIdentifier>.self, forKey: .digestAlgorithms)
 
-        let encapContentInfo = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .encapContentInfo)
+        let encapContentInfo = try signedData.nestedContainer(keyedBy: CodingKeys.self, forKey: .encapContentInfo)
         let eContentType = try encapContentInfo.decode(OID.self, forKey: .eContentType)
         
         guard eContentType == .pkcs7_data else {
@@ -63,7 +63,14 @@ public struct PKCS7Container: Decodable, DERTagAware {
         }
         
         let eContent = try encapContentInfo.nestedContainer(keyedBy: CodingKeys.self, forKey: .content)
-        data = try eContent.decode(Data.self, forKey: .content)
+        
+        
+        if let encapData = try eContent.decodeIfPresent(Data.self, forKey: .content) {
+            self.data = encapData
+        } else {
+            let extraWrapper = try eContent.nestedContainer(keyedBy: CodingKeys.self, forKey: .wrappedData)
+            self.data = try extraWrapper.decode(Data.self, forKey: .content)
+        }
 
         var certificateSequence = try signedData.nestedUnkeyedContainer(forKey: .certificates)
         

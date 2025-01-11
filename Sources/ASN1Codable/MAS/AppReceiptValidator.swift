@@ -16,10 +16,13 @@ public class AppReceiptValidator {
     
     let appleRootCertHash = "2bd06947947609fef46b8d2e40a6f7474d7f085e"
     let appleRootCertFilename = "AppleIncRootCertificate"
-    let container: PKCS7Container
-    var receipt: AppReceipt
-    var bundleIdentifier: String
-    var appVersion: String
+
+    public let container: PKCS7Container
+    public var receipt: AppReceipt
+    public var bundleIdentifier: String
+    public var appVersion: String
+    public var appleRootCert: SecCertificate?
+    
     
     public convenience init(receiptURL: URL, bundleIdentifier: String? = nil, appVersion: String? = nil) throws {
         try self.init(data: try Data(contentsOf:receiptURL), bundleIdentifier: bundleIdentifier, appVersion: appVersion)
@@ -200,7 +203,7 @@ public class AppReceiptValidator {
         // Step 2: Decode the app receipt as a PKCS #7 container and verify that the chain of trust for the container’s signature
         // traces back to the Apple Inc. Root certificate, available from Apple PKI. Use the receipt_creation_date,
         // identified as ASN.1 Field Type 12 when validating the receipt signature.
-        let appleRootCert = try locateAppleRootCertificate()
+        let appleRootCert = try self.appleRootCert ?? locateAppleRootCertificate()
         try validateCertificateTrust(rootCert: appleRootCert)
         
         

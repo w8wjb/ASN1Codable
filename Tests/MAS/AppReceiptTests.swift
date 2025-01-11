@@ -169,5 +169,23 @@ final class AppReceiptTests: XCTestCase {
         
     }
 
+    func testVerifyQTHSandboxRecipt() throws {
+        
+        
+        let receiptPath = Bundle.module.path(forResource: "qth_sandbox_receipt", ofType: "der")!
+        let receiptURL = URL(fileURLWithPath: receiptPath)
+        
+        
+        let validator = try AppReceiptValidator(receiptURL: receiptURL,
+                                                bundleIdentifier: "com.w8wjb.QTH",
+                                                appVersion: "1.0.0"
+                                                )
+        
+        // This cert is signed by the sandbox, not the real app store
+        validator.appleRootCert = validator.container.certificates.last
+
+        try validator.validate()
+    }
+    
     
 }
